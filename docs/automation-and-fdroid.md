@@ -73,12 +73,15 @@ Builds:
     versionCode: 1
     commit: REPLACE_WITH_FULL_RELEASE_COMMIT
     submodules: true
+    sudo:
+      - apt-get update
+      - apt-get install -y make zip
     output: app/build/outputs/apk/release/app-release-unsigned.apk
     build:
       - ./scripts/build_yt_dlp_from_source.sh
       - ytdlp_file="$PWD/build/yt-dlp-source/yt-dlp"
       - ytdlp_sha="$(sha256sum "$ytdlp_file" | awk '{print $1}')"
-      - ./gradlew --offline --no-daemon assembleRelease -Ppeek.ytdlp.file="$ytdlp_file"
+      - gradle --offline --no-daemon assembleRelease -Ppeek.ytdlp.file="$ytdlp_file"
         -Ppeek.ytdlp.sha256="$ytdlp_sha"
 
 AutoUpdateMode: Version
@@ -90,7 +93,11 @@ CurrentVersionCode: 1
 
 This template was normalized and linted successfully in the current official
 `fdroiddata` configuration with the current `fdroidserver` container on
-2026-09-04. Replace the commit marker before repeating that check for the first
+2026-09-04. Its full source scan reported zero problems, and its offline build
+produced the expected unsigned APK with an embedded yt-dlp hash matching the
+source-built file. The standalone test container's initially empty Maven cache
+was populated from the repositories declared by the project before that offline
+build. Replace the commit marker and repeat these checks for the first
 submission.
 
 F-Droid will then notice the release tags, update its build metadata, and queue a
