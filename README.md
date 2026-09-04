@@ -46,8 +46,13 @@ discoverable JDK 21 or set `JAVA_HOME` to one before invoking the wrapper.
 Build and run tests:
 
 ```bash
-./gradlew testDebugUnitTest assembleDebug
+./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
 ```
+
+With an emulator or device selected through `ANDROID_SERIAL`, run the deterministic
+Compose tests with `./gradlew connectedDebugAndroidTest`. CI runs the same tests
+on an AOSP API 30 Gradle-managed device. Live extraction tests remain manual so
+platform rate limits and datacenter blocking cannot make pull requests flaky.
 
 For Android Studio, select the shared **Peek** run configuration, choose one or
 more connected devices from the target-device selector, and press **Run**. The

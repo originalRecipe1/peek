@@ -34,4 +34,32 @@ jobs:
         uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
 
       - name: Verify the Android project
-        run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+        run: >-
+          ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+          assembleDebugAndroidTest
+
+  instrumented-tests:
+    name: Deterministic UI tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out Peek
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Enable KVM access
+        run: sudo chmod 666 /dev/kvm
+
+      - name: Run deterministic UI tests
+        run: >-
+          ./gradlew --no-daemon pixel2Api30DebugAndroidTest
+          -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
