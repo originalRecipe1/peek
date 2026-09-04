@@ -76,11 +76,12 @@ AutoName: Peek
 
 RepoType: git
 Repo: https://github.com/originalRecipe1/peek.git
+Binaries: https://github.com/originalRecipe1/peek/releases/download/v%v/Peek-%v.apk
 
 Builds:
-  - versionName: 0.1.0-experiment.4
-    versionCode: 4
-    commit: 4622af352a3a21ec1752e51f8e90528b16ffba7c
+  - versionName: 0.1.0-experiment.5
+    versionCode: 5
+    commit: 737f6d09667fd774742933c6dbe792dc12fd22e8
     subdir: app
     submodules: true
     sudo:
@@ -94,11 +95,13 @@ Builds:
       - echo "peek.ytdlp.sha256=$(sha256sum ../build/yt-dlp-source/yt-dlp | awk '{print
         $1}')" >> ../gradle.properties
 
+AllowedAPKSigningKeys: 3528e91676bde711bf40c70bce363f7c76a554ae9de91f221635b6e975400a3c
+
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
 UpdateCheckData: app/build.gradle.kts|versionCode\s*=\s*(\d+)||v(.*)
-CurrentVersion: 0.1.0-experiment.4
-CurrentVersionCode: 4
+CurrentVersion: 0.1.0-experiment.5
+CurrentVersionCode: 5
 ```
 
 This recipe was normalized and linted successfully in the current official
@@ -108,7 +111,10 @@ produced the expected unsigned APK with an embedded yt-dlp hash matching the
 source-built file. A second build starting with an empty Gradle cache confirmed
 that the declared repositories resolve the complete dependency graph; Android
 SDK 36 was mounted because the standalone image only bundled an older platform.
-The public `v0.1.0-experiment.4` tag resolves to the exact commit pinned above.
+The public `v0.1.0-experiment.5` tag resolves to the exact commit pinned above.
+For version code 5, `fdroid build` downloaded the developer-signed GitHub APK,
+successfully compared it with the F-Droid source rebuild, and accepted the
+allowlisted signing-certificate fingerprint shown in the metadata.
 Repeat these checks if the recipe changes before submission.
 
 Store text, the app icon, and phone screenshots are maintained in the upstream
