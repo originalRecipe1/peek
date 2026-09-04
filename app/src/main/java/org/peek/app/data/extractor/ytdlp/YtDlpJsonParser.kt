@@ -16,8 +16,7 @@ internal object YtDlpJsonParser {
         if (json.length > MAX_JSON_LENGTH) {
             throw ExtractionException(ExtractionError.ExtractionFailed)
         }
-        val root = runCatching { JSONObject(json.trim()) }
-            .getOrElse { throw ExtractionException(ExtractionError.ExtractionFailed, it) }
+        val root = parseRoot(json)
         val rootHeaders = root.optStringMap("http_headers")
         val entries = root.optJSONArray("entries")
             ?.objects(MAX_MEDIA_ENTRIES)
@@ -36,16 +35,61 @@ internal object YtDlpJsonParser {
                 ?: root.optStringOrNull("extractor")
                 ?: metadataFallback?.optStringOrNull("extractor_key")
                 ?: metadataFallback?.optStringOrNull("extractor"),
-            title = root.optStringOrNull("title")
+            title = root.optStringOrNull("playlist_title")
+                ?: root.optStringOrNull("title")
                 ?: metadataFallback?.optStringOrNull("title"),
-            author = root.authorOrNull()
+            author = root.optStringOrNull("playlist_uploader")
+                ?: root.authorOrNull()
                 ?: metadataFallback?.authorOrNull(),
-            description = root.optStringOrNull("description")
+            description = root.optStringOrNull("playlist_description")
+                ?: root.optStringOrNull("description")
                 ?: metadataFallback?.optStringOrNull("description"),
             thumbnailUrl = root.safeUrlOrNull("thumbnail")
                 ?: metadataFallback?.safeUrlOrNull("thumbnail"),
             media = media,
         )
+    }
+
+    private fun parseRoot(json: String): JSONObject {
+        val trimmed = json.trim()
+        val lines = trimmed.lineSequence()
+            .filter(String::isNotBlank)
+            .take(MAX_MEDIA_ENTRIES + 1)
+            .toList()
+        if (lines.size > 1 && lines.all { line ->
+                line.trimStart().startsWith('{') && line.trimEnd().endsWith('}')
+            }
+        ) {
+            return jsonLinesRoot(lines)
+        }
+        return runCatching { JSONObject(trimmed) }
+            .getOrElse { throw ExtractionException(ExtractionError.ExtractionFailed, it) }
+    }
+
+    private fun jsonLinesRoot(lines: List<String>): JSONObject {
+        val entries = lines.map { line ->
+            if (line.length > MAX_JSON_LINE_LENGTH) {
+                throw ExtractionException(ExtractionError.ExtractionFailed)
+            }
+            runCatching { JSONObject(line) }.getOrElse {
+                throw ExtractionException(ExtractionError.ExtractionFailed, it)
+            }
+        }
+        if (entries.isEmpty() || entries.size > MAX_MEDIA_ENTRIES) {
+            throw ExtractionException(ExtractionError.ExtractionFailed)
+        }
+        return JSONObject().apply {
+            put("entries", JSONArray(entries))
+            entries.first().optStringOrNull("playlist_title")?.let {
+                put("title", it)
+            }
+            entries.first().optStringOrNull("playlist_uploader")?.let {
+                put("uploader", it)
+            }
+            entries.first().optStringOrNull("playlist_description")?.let {
+                put("description", it)
+            }
+        }
     }
 
     private fun JSONObject.toExtractedMedia(
@@ -232,6 +276,7 @@ internal object YtDlpJsonParser {
             .mapNotNull { header ->
                 val headerValue = value.optStringOrNull(header)
                 if (header.matches(HEADER_NAME) &&
+                    header.lowercase() !in BLOCKED_HEADERS &&
                     headerValue != null &&
                     headerValue.length <= MAX_HEADER_LENGTH &&
                     '\r' !in headerValue &&
@@ -332,7 +377,8 @@ internal object YtDlpJsonParser {
         Image,
     }
 
-    private const val MAX_JSON_LENGTH = 8 * 1024 * 1024
+    private const val MAX_JSON_LENGTH = 2 * 1024 * 1024
+    private const val MAX_JSON_LINE_LENGTH = 256 * 1024
     private const val MAX_MEDIA_ENTRIES = 50
     private const val MAX_FORMATS_PER_ENTRY = 32
     private const val MAX_AVAILABLE_FORMATS = 512
@@ -342,6 +388,21 @@ internal object YtDlpJsonParser {
     private val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "webp", "gif", "avif", "heic", "heif")
     private val AUDIO_EXTENSIONS = setOf("m4a", "mp3", "ogg", "oga", "opus", "wav", "flac", "aac")
     private val HEADER_NAME = Regex("[!#$%&'*+.^_`|~0-9A-Za-z-]+")
+    private val BLOCKED_HEADERS = setOf(
+        "connection",
+        "content-length",
+        "forwarded",
+        "host",
+        "proxy-authorization",
+        "proxy-connection",
+        "range",
+        "te",
+        "trailer",
+        "transfer-encoding",
+        "upgrade",
+        "x-forwarded-for",
+        "x-real-ip",
+    )
     private val MIME_TYPE = Regex("[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+")
     private val FORMAT_QUALITY = compareBy<JSONObject>(
         { it.optInt("height", 0) },

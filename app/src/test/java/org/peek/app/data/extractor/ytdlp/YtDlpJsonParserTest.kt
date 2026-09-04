@@ -9,6 +9,23 @@ import org.peek.app.domain.model.StreamFormat
 
 class YtDlpJsonParserTest {
     @Test
+    fun `parses bounded newline-delimited gallery output`() {
+        val result = YtDlpJsonParser.parse(
+            sourceUrl = "https://example.com/post",
+            json = """
+                {"playlist_title":"Gallery post","playlist_uploader":"creator","extractor_key":"Example","title":"Image one","url":"https://cdn.example.com/one.jpg","ext":"jpg"}
+                {"playlist_title":"Gallery post","playlist_uploader":"creator","extractor_key":"Example","title":"Video two","url":"https://cdn.example.com/two.mp4","ext":"mp4","vcodec":"h264","acodec":"aac"}
+            """.trimIndent(),
+        )
+
+        assertEquals("Gallery post", result.title)
+        assertEquals("creator", result.author)
+        assertEquals(2, result.media.size)
+        assertTrue(result.media[0] is ExtractedMedia.Image)
+        assertTrue(result.media[1] is ExtractedMedia.Video)
+    }
+
+    @Test
     fun `parses a muxed progressive stream`() {
         val result = YtDlpJsonParser.parse(
             sourceUrl = "https://example.com/post/1",
@@ -249,6 +266,9 @@ class YtDlpJsonParserTest {
                   "acodec":"aac",
                   "http_headers": {
                     "User-Agent": "Safe value",
+                    "Host": "internal.example",
+                    "Range": "bytes=0-999999999",
+                    "X-Forwarded-For": "127.0.0.1",
                     "Bad Header": "ignored",
                     "X-Injected": "first\r\nSecond: value"
                   }

@@ -12,11 +12,12 @@ import okhttp3.OkHttpClient
 import org.peek.app.domain.model.ExtractedMedia
 import org.peek.app.domain.model.ExtractionResult
 import org.peek.app.domain.model.PlaybackSource
+import org.peek.app.data.network.SafeHttpClient
 
 @UnstableApi
 class Media3PlaybackMapper(
     private val context: Context,
-    private val client: OkHttpClient = OkHttpClient(),
+    private val client: OkHttpClient = SafeHttpClient.streaming,
 ) {
     fun map(
         extraction: ExtractionResult,

@@ -67,6 +67,24 @@ without clearing app data or viewing history.
 
 The first extraction can take noticeably longer while the bundled Python runtime initializes. Network behavior is limited to the submitted source platform/CDN; there is no Peek backend.
 
+## Network safety
+
+Peek treats submitted URLs and extractor output as untrusted. Before extraction,
+it follows a bounded HTTP redirect chain without reading response bodies and
+rejects any hop that targets localhost, a literal private address, or a hostname
+whose DNS answer contains a non-public address. The same public-only DNS and
+redirect policy is shared by Media3 and Coil, including manifest and image
+requests. Sensitive and hop-by-hop headers are removed when a request crosses
+origins, and extractor-provided connection, forwarding, host, length, and range
+headers are ignored.
+
+Extraction is cancellable and limited to 120 seconds. yt-dlp prints only the
+metadata and selected-format fields Peek consumes; short metadata is capped at
+512 characters, descriptions at 16 KiB, the normalized output at 2 MiB, and
+posts at 50 media entries. These controls reduce the attack surface, but they do
+not turn arbitrary extraction into a sandbox: yt-dlp and the bundled Python
+runtime remain security-sensitive code that must be kept current.
+
 ## Update automation
 
 A least-privilege Android CI workflow runs unit tests, lint, and a debug APK

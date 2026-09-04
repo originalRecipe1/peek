@@ -6,6 +6,9 @@ import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
+import org.peek.app.data.network.UnsafeNetworkTargetException
+import org.peek.app.data.network.UrlPreflight
 import org.peek.app.domain.extractor.MediaExtractor
 import org.peek.app.domain.model.ExtractionError
 import org.peek.app.domain.model.ExtractionException
@@ -22,24 +25,39 @@ class YtDlpMediaExtractor(
 ) : MediaExtractor {
     private val appContext = context.applicationContext
     private val bundledYtDlpInstaller = BundledYtDlpInstaller(appContext)
+    private val urlPreflight = UrlPreflight()
 
     override suspend fun extract(url: String): ExtractionResult {
         if (!UrlValidator.isAllowed(url)) {
             throw ExtractionException(ExtractionError.UnsupportedUrl)
         }
 
-        val processId = "peek-${UUID.randomUUID()}"
-        val request = YoutubeDLRequest(url).apply {
-            addOption("--ignore-config")
-            addOption("--dump-single-json")
-            addOption("--skip-download")
-            addOption("--playlist-end", MAX_MEDIA_ENTRIES.toString())
-            addOption("--no-warnings")
-            addOption("--format", FORMAT_SELECTOR)
-        }
-
         return try {
-            val output = executeCancellable(request, processId)
+            val extractionUrl = urlPreflight.resolve(url)
+            val processId = "peek-${UUID.randomUUID()}"
+            val request = YoutubeDLRequest(extractionUrl).apply {
+                addOption("--ignore-config")
+                addOption("--skip-download")
+                addOption("--playlist-end", MAX_MEDIA_ENTRIES.toString())
+                addOption("--no-warnings")
+                addOption("--format", FORMAT_SELECTOR)
+                addCommands(
+                    metadataLimits(
+                        "title" to SHORT_METADATA_PATTERN,
+                        "uploader" to SHORT_METADATA_PATTERN,
+                        "channel" to SHORT_METADATA_PATTERN,
+                        "creator" to SHORT_METADATA_PATTERN,
+                        "description" to DESCRIPTION_PATTERN,
+                        "playlist_title" to SHORT_METADATA_PATTERN,
+                        "playlist_uploader" to SHORT_METADATA_PATTERN,
+                        "playlist_description" to DESCRIPTION_PATTERN,
+                    ),
+                )
+                addOption("--print", OUTPUT_TEMPLATE)
+            }
+            val output = withTimeout(EXTRACTION_TIMEOUT_MILLIS) {
+                executeCancellable(request, processId)
+            }
             YtDlpJsonParser.parse(url, output).also { result ->
                 Log.d(
                     TAG,
@@ -92,7 +110,9 @@ class YtDlpMediaExtractor(
             .joinToString(" ")
             .lowercase()
 
+        val causes = generateSequence(this) { it.cause }.toList()
         return when {
+            causes.any { it is UnsafeNetworkTargetException } -> ExtractionError.UnsupportedUrl
             this is IOException || listOf("network", "timed out", "connection", "dns").any(detail::contains) ->
                 ExtractionError.NetworkFailure
             listOf("sign in", "login", "cookies", "private video", "authentication").any(detail::contains) ->
@@ -116,10 +136,24 @@ class YtDlpMediaExtractor(
         )
     }
 
+    private fun metadataLimits(vararg limits: Pair<String, String>): List<String> =
+        limits.flatMap { (field, pattern) ->
+            listOf("--replace-in-metadata", field, pattern, "\\1")
+        }
+
     private companion object {
         const val TAG = "YtDlpExtractor"
         const val FORMAT_SELECTOR =
             "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"
+        const val OUTPUT_TEMPLATE =
+            "%(.{extractor_key,extractor,title,uploader,channel,creator,description," +
+                "thumbnail,duration,url,protocol,ext,mime_type,vcodec,acodec,width," +
+                "height,video_ext,audio_ext,http_headers,format_id,requested_formats," +
+                "requested_downloads,playlist_title,playlist_uploader," +
+                "playlist_description})j"
+        const val SHORT_METADATA_PATTERN = "(?s)^(.{0,512}).*"
+        const val DESCRIPTION_PATTERN = "(?s)^(.{0,16384}).*"
+        const val EXTRACTION_TIMEOUT_MILLIS = 120_000L
         const val MAX_MEDIA_ENTRIES = 50
         val executor = Executors.newCachedThreadPool { runnable ->
             Thread(runnable, "peek-ytdlp").apply { isDaemon = true }
