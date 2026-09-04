@@ -62,7 +62,7 @@ jobs:
       - name: Install managed-device system image
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-30;aosp_atd;x86"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-30;aosp_atd;x86_64"
 
       - name: Run deterministic UI tests
         run: >-

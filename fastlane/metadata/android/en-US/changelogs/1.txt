@@ -1,0 +1,2 @@
+Initial streaming experiment with local extraction, native video/image/audio
+viewers, galleries, viewing history, Share/Open With support, and fullscreen.

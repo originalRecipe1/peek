@@ -4,12 +4,17 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
+import java.util.zip.ZipFile
 
 plugins {
     alias(libs.plugins.android.application)
@@ -25,6 +30,11 @@ abstract class PreparePinnedYtDlp : DefaultTask() {
     @get:Input
     abstract val expectedSha256: Property<String>
 
+    @get:InputFile
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val localEngine: RegularFileProperty
+
     @get:OutputFile
     abstract val destination: RegularFileProperty
 
@@ -37,14 +47,14 @@ abstract class PreparePinnedYtDlp : DefaultTask() {
         val temporary = Files.createTempFile(destinationFile.parentFile.toPath(), "ytdlp-", ".part")
         try {
             val digest = MessageDigest.getInstance("SHA-256")
-            val connection = URI(
+            val inputStream = localEngine.orNull?.asFile?.inputStream() ?: URI(
                 "https://github.com/yt-dlp/yt-dlp/releases/download/$version/yt-dlp",
             ).toURL().openConnection().apply {
                 connectTimeout = 30_000
                 readTimeout = 60_000
                 setRequestProperty("User-Agent", "Peek-Android-build/$version")
-            }
-            connection.getInputStream().buffered().use { input ->
+            }.getInputStream()
+            inputStream.buffered().use { input ->
                 Files.newOutputStream(temporary).buffered().use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                     while (true) {
@@ -60,6 +70,16 @@ abstract class PreparePinnedYtDlp : DefaultTask() {
             check(actualHash == expectedHash) {
                 "yt-dlp $version checksum mismatch: $actualHash"
             }
+            ZipFile(temporary.toFile()).use { archive ->
+                val versionEntry = checkNotNull(archive.getEntry("yt_dlp/version.py")) {
+                    "yt-dlp archive does not contain yt_dlp/version.py"
+                }
+                val versionSource = archive.getInputStream(versionEntry).bufferedReader().use { it.readText() }
+                val expectedVersion = "__version__ = '$version'"
+                check(versionSource.lineSequence().any { it.trim() == expectedVersion }) {
+                    "yt-dlp archive version does not match $version"
+                }
+            }
             Files.move(
                 temporary,
                 destinationFile.toPath(),
@@ -73,7 +93,17 @@ abstract class PreparePinnedYtDlp : DefaultTask() {
 }
 
 val ytDlpEngineVersion = libs.versions.ytDlpEngine.get()
-val ytDlpEngineSha256 = "1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6"
+val ytDlpReleaseSha256 = "1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6"
+val localYtDlpPath = providers.gradleProperty("peek.ytdlp.file").orNull
+val ytDlpEngineSha256 = if (localYtDlpPath == null) {
+    ytDlpReleaseSha256
+} else {
+    providers.gradleProperty("peek.ytdlp.sha256").orNull
+        ?: error("peek.ytdlp.sha256 is required when peek.ytdlp.file is set")
+}
+require(ytDlpEngineSha256.matches(Regex("[0-9a-f]{64}"))) {
+    "The selected yt-dlp SHA-256 must be 64 lowercase hexadecimal characters"
+}
 val generatedYtDlpResources = layout.buildDirectory.dir("generated/peekYtDlp/res")
 val bundledYtDlp = generatedYtDlpResources.map { it.file("raw/ytdlp") }
 
@@ -82,6 +112,7 @@ val preparePinnedYtDlp by tasks.registering(PreparePinnedYtDlp::class) {
     group = "build setup"
     engineVersion.set(ytDlpEngineVersion)
     expectedSha256.set(ytDlpEngineSha256)
+    localYtDlpPath?.let { localEngine.fileValue(file(it)) }
     destination.set(bundledYtDlp)
 }
 
@@ -141,7 +172,8 @@ android {
                     device = "Pixel 2"
                     apiLevel = 30
                     systemImageSource = "aosp-atd"
-                    testedAbi = "x86"
+                    require64Bit = true
+                    testedAbi = "x86_64"
                 }
             }
         }

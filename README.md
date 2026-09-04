@@ -36,6 +36,7 @@ Requirements:
 - JDK 21 for the Gradle runtime (the app still targets Java 17 bytecode)
 - Android SDK 36
 - a 64-bit ARM device or x86_64 emulator running Android 7.0+
+- Git, Python 3, Make, and Zip only when building the extractor from source
 
 The repository pins the Gradle daemon to Java 21 in
 `gradle/gradle-daemon-jvm.properties`. Gradle 8.14.5 cannot run on Java 25.
@@ -58,12 +59,28 @@ For Android Studio, select the shared **Peek** run configuration, choose one or
 more connected devices from the target-device selector, and press **Run**. The
 configuration launches the default activity and does not clear app data.
 
-The build downloads the official yt-dlp `2026.08.19` zipimport executable and
-verifies its pinned SHA-256 before packaging it as an app resource. The app then
-uses that bundled copy through youtubedl-android; it does not fetch or update
-executable code at runtime. A future F-Droid recipe should build the same
-zipimport file from the matching yt-dlp source tag rather than relying on the
-release artifact.
+The normal build downloads the official yt-dlp `2026.08.19` zipimport executable
+and verifies its pinned SHA-256 before packaging it as an app resource. The app
+then uses that bundled copy through youtubedl-android; it does not fetch or update
+executable code at runtime.
+
+For an offline/F-Droid-style source build, initialize the pinned submodule and
+build the extractor first:
+
+```bash
+git submodule update --init
+./scripts/build_yt_dlp_from_source.sh
+source_file="$PWD/build/yt-dlp-source/yt-dlp"
+source_sha="$(sha256sum "$source_file" | awk '{print $1}')"
+./gradlew --offline --no-daemon assembleRelease \
+  -Ppeek.ytdlp.file="$source_file" \
+  -Ppeek.ytdlp.sha256="$source_sha"
+```
+
+This path performs no extractor download during Gradle execution. Gradle verifies
+the supplied archive's checksum and embedded version before packaging it. The
+source-built variant has also completed the YouTube streaming proof of concept
+on the emulator.
 
 Before the first extraction in each app process, Peek verifies the app-private
 extractor copy against the bundled checksum and atomically refreshes it when it
@@ -96,10 +113,10 @@ A least-privilege Android CI workflow runs unit tests, lint, and a debug APK
 build for every pull request and every push to `main`.
 
 A weekly GitHub Actions workflow checks the latest stable yt-dlp release,
-verifies its published checksum, runs the Android checks, and opens a versioned
-pull request. Merging that reviewed pull request creates a GitHub release tag
-that F-Droid can monitor. Repository setup, the proposed F-Droid metadata, and
-the remaining source-build packaging requirement are documented in
+verifies its published checksum, advances the pinned source submodule, tests both
+release-asset and source-built packaging, and opens a versioned pull request.
+Merging that reviewed pull request creates a GitHub release tag that F-Droid can
+monitor. Repository setup and the proposed F-Droid build metadata are documented in
 [`docs/automation-and-fdroid.md`](docs/automation-and-fdroid.md).
 
 ## Viewing history
@@ -139,4 +156,8 @@ ui -> domain repository -> MediaExtractor -> yt-dlp adapter
 
 ## Licensing note
 
-The application source is licensed under GPL-3.0-only, matching the yt-dlp Android integration's copyleft license. A complete dependency/license audit and full distribution notices are still required before publishing binaries or submitting to F-Droid.
+The application source is licensed under GPL-3.0-only, matching the yt-dlp Android
+integration's copyleft license. The audited runtime dependency families and
+bundled native/Python components are recorded in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md); release changes must keep that
+inventory current.

@@ -12,10 +12,11 @@ release every Monday at 04:23 UTC.
 2. Downloads `yt-dlp` and `SHA2-256SUMS` from that release.
 3. Rejects unexpected version formats, checksum mismatches, changed immutable
    releases, and version downgrades.
-4. Updates the pinned engine version and checksum and increments Peek's literal
-   `versionCode` and `versionName`.
-5. Runs unit tests, Android lint, and an APK build, then verifies the yt-dlp file
-   embedded in the APK.
+4. Updates the pinned engine version and checksum, advances the yt-dlp source
+   submodule to the same release, and increments Peek's literal `versionCode`
+   and `versionName`.
+5. Runs unit tests, Android lint, and APK builds, then verifies both the official
+   release asset and the locally source-built yt-dlp file embedded in debug APKs.
 6. Opens a pull request for review. It never merges the update itself.
 
 The workflow can also be run manually from the Actions tab. For its pull-request
@@ -32,9 +33,36 @@ between an upstream extractor release and an app/F-Droid release.
 
 Official F-Droid metadata does not live in this repository. Once Peek has been
 accepted, the authoritative `metadata/org.peek.app.yml` in `fdroiddata` should
-include the following update configuration:
+include a build block based on the following template. Replace the commit marker
+with the full commit hash for the release tag during the initial submission:
 
 ```yaml
+Categories:
+  - Internet
+License: GPL-3.0-only
+AntiFeatures:
+  NonFreeNet:
+    en-US: Connects to third-party social platforms and media CDNs
+SourceCode: https://github.com/originalRecipe1/peek
+IssueTracker: https://github.com/originalRecipe1/peek/issues
+
+RepoType: git
+Repo: https://github.com/originalRecipe1/peek.git
+
+Builds:
+  - versionName: 0.1.0-experiment.1
+    versionCode: 1
+    commit: REPLACE_WITH_FULL_RELEASE_COMMIT
+    submodules: true
+    build: |-
+      ./scripts/build_yt_dlp_from_source.sh
+      ytdlp_file="$PWD/build/yt-dlp-source/yt-dlp"
+      ytdlp_sha="$(sha256sum "$ytdlp_file" | awk '{print $1}')"
+      ./gradlew --offline --no-daemon assembleRelease \
+        -Ppeek.ytdlp.file="$ytdlp_file" \
+        -Ppeek.ytdlp.sha256="$ytdlp_sha"
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
 UpdateCheckData: app/build.gradle.kts|versionCode\s*=\s*(\d+)||v(.*)
@@ -45,11 +73,15 @@ CurrentVersionCode: 1
 F-Droid will then notice the release tags, update its build metadata, and queue a
 new build. Publication is asynchronous and remains controlled by F-Droid.
 
-There is one unresolved inclusion task: the current Gradle build downloads the
-pinned, checksum-verified yt-dlp zipimport asset while preparing resources.
-F-Droid build workers do not permit arbitrary network access during a build.
-Before submission, replace that step for the F-Droid build with a source-built
-artifact from the matching yt-dlp tag—preferably through a pinned git submodule,
-which the weekly updater can advance in the same pull request. Do not claim that
-official F-Droid publication is active until that recipe has been accepted in
-`fdroiddata`.
+The source-build script constructs yt-dlp from the pinned git submodule before
+calling Gradle. The local-file Gradle path never downloads the release asset and
+rejects checksum or version mismatches. The youtubedl-android runtime is resolved
+from Maven Central, a trusted Maven repository; it contains the native Python and
+QuickJS runtimes documented in `THIRD_PARTY_NOTICES.md`.
+
+Before the initial submission, make the GitHub repository public, create the
+first reviewed release tag, validate this block with the current `fdroidserver`,
+and submit it to `fdroiddata`. Do not claim that official F-Droid publication is
+active until that merge request has been accepted. GitHub Actions cannot publish
+directly into the official repository; F-Droid detects tags and controls its own
+build and signing queue.

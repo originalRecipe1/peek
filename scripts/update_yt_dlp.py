@@ -49,9 +49,9 @@ def main() -> None:
     current_version = current_match.group(1)
 
     build = BUILD_FILE.read_text(encoding="utf-8")
-    hash_match = re.search(r'^val ytDlpEngineSha256 = "([0-9a-f]{64})"$', build, re.MULTILINE)
+    hash_match = re.search(r'^val ytDlpReleaseSha256 = "([0-9a-f]{64})"$', build, re.MULTILINE)
     if hash_match is None:
-        raise RuntimeError("Could not find ytDlpEngineSha256 in app/build.gradle.kts")
+        raise RuntimeError("Could not find ytDlpReleaseSha256 in app/build.gradle.kts")
     current_hash = hash_match.group(1)
 
     if new_version == current_version:
@@ -83,8 +83,8 @@ def main() -> None:
     )
     replace_once(
         BUILD_FILE,
-        r'^val ytDlpEngineSha256 = "[0-9a-f]{64}"$',
-        f'val ytDlpEngineSha256 = "{new_hash}"',
+        r'^val ytDlpReleaseSha256 = "[0-9a-f]{64}"$',
+        f'val ytDlpReleaseSha256 = "{new_hash}"',
     )
     replace_once(BUILD_FILE, r"^(\s*)versionCode = \d+$", rf"\g<1>versionCode = {next_code}")
     replace_once(
