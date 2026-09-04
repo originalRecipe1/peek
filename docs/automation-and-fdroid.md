@@ -68,9 +68,9 @@ RepoType: git
 Repo: https://github.com/originalRecipe1/peek.git
 
 Builds:
-  - versionName: 0.1.0-experiment.1
-    versionCode: 1
-    commit: 96f9c391447b01761866eb56baa28857d4778d02
+  - versionName: 0.1.0-experiment.2
+    versionCode: 2
+    commit: 046e0622b6647ead8ad13d21ee1b0fe56486f9bf
     submodules: true
     sudo:
       - apt-get update
@@ -86,8 +86,8 @@ Builds:
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
 UpdateCheckData: app/build.gradle.kts|versionCode\s*=\s*(\d+)||v(.*)
-CurrentVersion: 0.1.0-experiment.1
-CurrentVersionCode: 1
+CurrentVersion: 0.1.0-experiment.2
+CurrentVersionCode: 2
 ```
 
 This recipe was normalized and linted successfully in the current official
@@ -96,8 +96,10 @@ This recipe was normalized and linted successfully in the current official
 produced the expected unsigned APK with an embedded yt-dlp hash matching the
 source-built file. The standalone test container's initially empty Maven cache
 was populated from the repositories declared by the project before that offline
-build. The public `v0.1.0-experiment.1` tag resolves to the exact commit pinned
-above. Repeat these checks if the recipe changes before submission.
+build, and Android SDK 36 was mounted because the standalone image only bundled
+an older platform. The public `v0.1.0-experiment.2` tag resolves to the exact
+commit pinned above. Repeat these checks if the recipe changes before
+submission.
 
 F-Droid will then notice the release tags, update its build metadata, and queue a
 new build. Publication is asynchronous and remains controlled by F-Droid.
