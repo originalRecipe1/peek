@@ -68,6 +68,7 @@ AntiFeatures:
 Categories:
   - Internet
 License: GPL-3.0-only
+AuthorName: originalRecipe1
 SourceCode: https://github.com/originalRecipe1/peek
 IssueTracker: https://github.com/originalRecipe1/peek/issues
 
@@ -80,13 +81,13 @@ Builds:
   - versionName: 0.1.0-experiment.4
     versionCode: 4
     commit: 4622af352a3a21ec1752e51f8e90528b16ffba7c
+    subdir: app
     submodules: true
     sudo:
       - apt-get update
       - apt-get install -y make zip
     gradle:
       - yes
-    output: app/build/outputs/apk/release/app-release-unsigned.apk
     build:
       - ./scripts/build_yt_dlp_from_source.sh
       - echo "peek.ytdlp.file=$PWD/build/yt-dlp-source/yt-dlp" >> gradle.properties
