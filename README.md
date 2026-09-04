@@ -66,6 +66,9 @@ The first extraction can take noticeably longer while the bundled Python runtime
 
 ## Update automation
 
+A least-privilege Android CI workflow runs unit tests, lint, and a debug APK
+build for every pull request and every push to `main`.
+
 A weekly GitHub Actions workflow checks the latest stable yt-dlp release,
 verifies its published checksum, runs the Android checks, and opens a versioned
 pull request. Merging that reviewed pull request creates a GitHub release tag
