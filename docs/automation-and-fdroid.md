@@ -52,7 +52,7 @@ passwords.
 
 Official F-Droid metadata does not live in this repository. Once Peek has been
 accepted, the authoritative `metadata/org.peek.app.yml` in `fdroiddata` should
-include the following build block for the first public release:
+include the following build block for the current submission release:
 
 ```yaml
 AntiFeatures:
@@ -70,9 +70,9 @@ RepoType: git
 Repo: https://github.com/originalRecipe1/peek.git
 
 Builds:
-  - versionName: 0.1.0-experiment.2
-    versionCode: 2
-    commit: 046e0622b6647ead8ad13d21ee1b0fe56486f9bf
+  - versionName: 0.1.0-experiment.3
+    versionCode: 3
+    commit: ed1bab12da2265f3b7031975a01014ff0bfce758
     submodules: true
     sudo:
       - apt-get update
@@ -89,8 +89,8 @@ Builds:
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
 UpdateCheckData: app/build.gradle.kts|versionCode\s*=\s*(\d+)||v(.*)
-CurrentVersion: 0.1.0-experiment.2
-CurrentVersionCode: 2
+CurrentVersion: 0.1.0-experiment.3
+CurrentVersionCode: 3
 ```
 
 This recipe was normalized and linted successfully in the current official
@@ -100,8 +100,12 @@ produced the expected unsigned APK with an embedded yt-dlp hash matching the
 source-built file. A second build starting with an empty Gradle cache confirmed
 that the declared repositories resolve the complete dependency graph; Android
 SDK 36 was mounted because the standalone image only bundled an older platform.
-The public `v0.1.0-experiment.2` tag resolves to the exact commit pinned above.
+The public `v0.1.0-experiment.3` tag resolves to the exact commit pinned above.
 Repeat these checks if the recipe changes before submission.
+
+Store text, the app icon, and phone screenshots are maintained in the upstream
+`fastlane/metadata/android/en-US` directory. F-Droid imports those assets from
+the tagged app source rather than from `fdroiddata`.
 
 F-Droid will then notice the release tags, update its build metadata, and queue a
 new build. Publication is asynchronous and remains controlled by F-Droid.
