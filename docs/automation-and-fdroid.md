@@ -52,8 +52,7 @@ passwords.
 
 Official F-Droid metadata does not live in this repository. Once Peek has been
 accepted, the authoritative `metadata/org.peek.app.yml` in `fdroiddata` should
-include a build block based on the following template. Replace the commit marker
-with the full commit hash for the release tag during the initial submission:
+include the following build block for the first public release:
 
 ```yaml
 AntiFeatures:
@@ -71,7 +70,7 @@ Repo: https://github.com/originalRecipe1/peek.git
 Builds:
   - versionName: 0.1.0-experiment.1
     versionCode: 1
-    commit: REPLACE_WITH_FULL_RELEASE_COMMIT
+    commit: 96f9c391447b01761866eb56baa28857d4778d02
     submodules: true
     sudo:
       - apt-get update
@@ -91,14 +90,14 @@ CurrentVersion: 0.1.0-experiment.1
 CurrentVersionCode: 1
 ```
 
-This template was normalized and linted successfully in the current official
+This recipe was normalized and linted successfully in the current official
 `fdroiddata` configuration with the current `fdroidserver` container on
 2026-09-04. Its full source scan reported zero problems, and its offline build
 produced the expected unsigned APK with an embedded yt-dlp hash matching the
 source-built file. The standalone test container's initially empty Maven cache
 was populated from the repositories declared by the project before that offline
-build. Replace the commit marker and repeat these checks for the first
-submission.
+build. The public `v0.1.0-experiment.1` tag resolves to the exact commit pinned
+above. Repeat these checks if the recipe changes before submission.
 
 F-Droid will then notice the release tags, update its build metadata, and queue a
 new build. Publication is asynchronous and remains controlled by F-Droid.
@@ -109,9 +108,9 @@ rejects checksum or version mismatches. The youtubedl-android runtime is resolve
 from Maven Central, a trusted Maven repository; it contains the native Python and
 QuickJS runtimes documented in `THIRD_PARTY_NOTICES.md`.
 
-Before the initial submission, make the GitHub repository public, create the
-first reviewed release tag, validate this block with the current `fdroidserver`,
-and submit it to `fdroiddata`. Do not claim that official F-Droid publication is
+The repository is public, the first reviewed release is tagged, and this block
+has been validated with the current `fdroidserver`. The remaining initial step is
+to submit it to `fdroiddata`. Do not claim that official F-Droid publication is
 active until that merge request has been accepted. GitHub Actions cannot publish
 directly into the official repository; F-Droid detects tags and controls its own
 build and signing queue.
