@@ -1,0 +1,1 @@
+Added complete F-Droid store metadata with an app icon and screenshots covering link input, native playback, and local viewing history.

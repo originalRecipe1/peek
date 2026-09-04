@@ -10,3 +10,6 @@ Peek has no ads, analytics, mandatory account, or project-operated backend. The
 device still contacts the original platform and its media hosts, so viewing is
 not anonymous. Some private, age-restricted, regional, or login-gated media may
 require cookies and is not supported by the initial release.
+
+Store screenshots featuring Big Buck Bunny: © copyright 2008, Blender
+Foundation / www.bigbuckbunny.org, licensed under CC BY 3.0.

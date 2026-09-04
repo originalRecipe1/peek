@@ -50,3 +50,13 @@ upstream projects and their source distributions:
 
 Before changing runtime dependencies or the Android extraction runtime, update
 this file and inspect the resulting release APK again.
+
+## Store-listing demo media
+
+The F-Droid phone screenshots include a frame from *Big Buck Bunny*:
+
+> © copyright 2008, Blender Foundation / www.bigbuckbunny.org
+
+The film is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
+and is available from the [Blender Foundation](https://peach.blender.org/). The
+media is used only in store-listing screenshots and is not bundled in the APK.
