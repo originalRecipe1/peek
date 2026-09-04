@@ -64,21 +64,86 @@ jobs:
         if: steps.version.outputs.create == 'true'
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleRelease
 
+      - name: Sign the release APK when configured
+        if: steps.version.outputs.create == 'true'
+        id: signing
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.ANDROID_SIGNING_KEYSTORE_BASE64 }}
+          SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          configured=0
+          for value in "$SIGNING_KEYSTORE_BASE64" "$SIGNING_KEY_ALIAS" \
+            "$ANDROID_KEYSTORE_PASSWORD" "$ANDROID_KEY_PASSWORD"; do
+            if [[ -n "$value" ]]; then
+              configured=$((configured + 1))
+            fi
+          done
+          if [[ "$configured" -eq 0 ]]; then
+            echo "::notice::Signing secrets are not configured; the release will contain source archives only."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$configured" -ne 4 ]]; then
+            echo "All four Android signing secrets must be configured together" >&2
+            exit 1
+          fi
+
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;34.0.0"
+          signing_dir="$RUNNER_TEMP/peek-signing"
+          mkdir -p "$signing_dir"
+          keystore_file="$signing_dir/release.keystore"
+          unsigned_apk="$PWD/app/build/outputs/apk/release/app-release-unsigned.apk"
+          aligned_apk="$signing_dir/Peek-$VERSION_NAME-aligned.apk"
+          signed_apk="$signing_dir/Peek-$VERSION_NAME.apk"
+          printf '%s' "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$keystore_file"
+
+          "$ANDROID_HOME/build-tools/34.0.0/zipalign" -p -f 4 "$unsigned_apk" "$aligned_apk"
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign \
+            --ks "$keystore_file" \
+            --ks-key-alias "$SIGNING_KEY_ALIAS" \
+            --ks-pass env:ANDROID_KEYSTORE_PASSWORD \
+            --key-pass env:ANDROID_KEY_PASSWORD \
+            --out "$signed_apk" \
+            "$aligned_apk"
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$signed_apk"
+          "$ANDROID_HOME/build-tools/34.0.0/zipalign" -c 4 "$signed_apk"
+
+          checksum_file="$signed_apk.sha256"
+          (cd "$signing_dir" && sha256sum "$(basename "$signed_apk")" > "$(basename "$checksum_file")")
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+          echo "apk=$signed_apk" >> "$GITHUB_OUTPUT"
+          echo "checksum=$checksum_file" >> "$GITHUB_OUTPUT"
+
       - name: Create the tag and GitHub release
         if: steps.version.outputs.create == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
           VERSION_NAME: ${{ steps.version.outputs.name }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          SIGNED_APK: ${{ steps.signing.outputs.apk }}
+          SIGNED_CHECKSUM: ${{ steps.signing.outputs.checksum }}
         shell: bash
         run: |
           set -euo pipefail
           release_flags=()
+          release_assets=()
           if [[ "$VERSION_NAME" =~ (alpha|beta|rc|experiment) ]]; then
             release_flags+=(--prerelease)
+          fi
+          if [[ "$SIGNED" == "true" ]]; then
+            release_assets+=("$SIGNED_APK" "$SIGNED_CHECKSUM")
           fi
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
             --title "Peek $VERSION_NAME" \
             --generate-notes \
+            "${release_assets[@]}" \
             "${release_flags[@]}"

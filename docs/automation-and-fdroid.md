@@ -29,6 +29,25 @@ commit and creates a GitHub release and `v<versionName>` tag. It can also be run
 manually to tag a normal app release. A human merge is deliberately the gate
 between an upstream extractor release and an app/F-Droid release.
 
+### Optional signed GitHub APKs
+
+F-Droid builds and signs its own APK, so signing secrets are not required for the
+F-Droid tag flow. To also attach an installable upstream APK and SHA-256 file to
+each GitHub release, configure all four Actions secrets:
+
+- `ANDROID_SIGNING_KEYSTORE_BASE64`: base64-encoded release keystore
+- `ANDROID_SIGNING_KEY_ALIAS`: key alias
+- `ANDROID_SIGNING_STORE_PASSWORD`: keystore password
+- `ANDROID_SIGNING_KEY_PASSWORD`: key password
+
+The workflow aligns the unsigned release APK and signs/verifies it with Android
+Build Tools 34.0.0. If none of these secrets exists, it creates a source-only
+GitHub release. A partial secret configuration fails closed. Keep the original
+keystore and credentials backed up securely outside GitHub; losing them prevents
+seamless upgrades of upstream-signed APKs. For a PKCS#12 keystore, use the same
+value for the store and key password secrets; JKS keystores can use distinct
+passwords.
+
 ## F-Droid auto-update configuration
 
 Official F-Droid metadata does not live in this repository. Once Peek has been
