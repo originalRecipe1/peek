@@ -1,6 +1,7 @@
 package org.peek.app
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,6 +35,13 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIntent(intent)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // uiMode is handled by this activity so playback is not interrupted.
+        // Reapply edge-to-edge to update system-bar icon contrast immediately.
+        enableEdgeToEdge()
     }
 
     private fun handleIntent(intent: Intent?) {
