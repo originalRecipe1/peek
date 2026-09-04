@@ -124,8 +124,8 @@ android {
         applicationId = "org.peek.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.1.0-experiment.3"
+        versionCode = 4
+        versionName = "0.1.0-experiment.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(

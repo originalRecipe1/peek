@@ -280,6 +280,18 @@ class YtDlpJsonParserTest {
     }
 
     @Test
+    fun `rejects public cleartext media URLs`() {
+        val cleartextStream = runCatching {
+            YtDlpJsonParser.parse(
+                "https://example.com/post/cleartext",
+                """{"url":"http://cdn.example.com/media.mp4","vcodec":"h264","acodec":"aac"}""",
+            )
+        }
+
+        assertTrue(cleartextStream.isFailure)
+    }
+
+    @Test
     fun `parses an image with required headers`() {
         val result = YtDlpJsonParser.parse(
             "https://example.com/post/image",

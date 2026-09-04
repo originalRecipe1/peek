@@ -177,7 +177,7 @@ internal object YtDlpJsonParser {
     ): PlaybackSource? {
         val streamUrl = optStringOrNull("url") ?: return null
         val uri = runCatching { URI(streamUrl) }.getOrNull() ?: return null
-        if (!UrlValidator.isAllowed(streamUrl)) return null
+        if (!UrlValidator.isAllowedHttps(streamUrl)) return null
 
         val protocol = optStringOrNull("protocol").orEmpty().lowercase()
         val extension = mediaExtension(uri)
@@ -259,10 +259,10 @@ internal object YtDlpJsonParser {
             ?: optStringOrNull("creator")
 
     private fun JSONObject.safeUrlOrNull(key: String): String? =
-        optStringOrNull(key)?.takeIf(UrlValidator::isAllowed)
+        optStringOrNull(key)?.takeIf(UrlValidator::isAllowedHttps)
 
     private fun JSONObject.hasPlayableUrl(): Boolean =
-        optStringOrNull("url")?.let(UrlValidator::isAllowed) == true
+        optStringOrNull("url")?.let(UrlValidator::isAllowedHttps) == true
 
     private fun JSONObject.optStringOrNull(key: String): String? =
         optString(key)

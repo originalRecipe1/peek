@@ -28,12 +28,13 @@ class YtDlpMediaExtractor(
     private val urlPreflight = UrlPreflight()
 
     override suspend fun extract(url: String): ExtractionResult {
-        if (!UrlValidator.isAllowed(url)) {
+        val secureInputUrl = UrlValidator.toHttpsUrl(url)
+        if (secureInputUrl == null) {
             throw ExtractionException(ExtractionError.UnsupportedUrl)
         }
 
         return try {
-            val extractionUrl = urlPreflight.resolve(url)
+            val extractionUrl = urlPreflight.resolve(secureInputUrl)
             val processId = "peek-${UUID.randomUUID()}"
             val request = YoutubeDLRequest(extractionUrl).apply {
                 addOption("--ignore-config")

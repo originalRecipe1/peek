@@ -1,0 +1,1 @@
+Disabled cleartext network traffic. Incoming HTTP links are upgraded to HTTPS before extraction, and insecure redirects or media sources are rejected.

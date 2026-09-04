@@ -20,6 +20,21 @@ object UrlValidator {
             !literalAddress.isMulticastAddress
     }
 
+    fun toHttpsUrl(rawUrl: String): String? {
+        if (!isAllowed(rawUrl)) return null
+        val scheme = runCatching { URI(rawUrl).scheme }.getOrNull() ?: return null
+        return when (scheme.lowercase()) {
+            "https" -> rawUrl
+            "http" -> "https${rawUrl.substring(scheme.length)}"
+            else -> null
+        }
+    }
+
+    fun isAllowedHttps(rawUrl: String): Boolean =
+        isAllowed(rawUrl) &&
+            runCatching { URI(rawUrl).scheme.equals("https", ignoreCase = true) }
+                .getOrDefault(false)
+
     private fun parseIpLiteral(host: String): InetAddress? {
         val normalized = host.removePrefix("[").removeSuffix("]")
         val looksLikeIpv4 = normalized.matches(Regex("[0-9.]+"))

@@ -14,6 +14,10 @@ class UrlPreflight(
     private val client: OkHttpClient = SafeHttpClient.preflight,
 ) {
     suspend fun resolve(url: String): String = suspendCancellableCoroutine { continuation ->
+        if (!UrlValidator.isAllowedHttps(url)) {
+            continuation.resumeWithException(UnsafeNetworkTargetException())
+            return@suspendCancellableCoroutine
+        }
         val request = Request.Builder()
             .url(url)
             .head()

@@ -28,7 +28,7 @@ class SafeRedirectInterceptor : Interceptor {
     }
 
     private fun requirePublicUrl(url: HttpUrl) {
-        if (!UrlValidator.isAllowed(url.toString())) {
+        if (!UrlValidator.isAllowedHttps(url.toString())) {
             throw UnsafeNetworkTargetException()
         }
     }
