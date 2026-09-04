@@ -59,6 +59,11 @@ jobs:
       - name: Enable KVM access
         run: sudo chmod 666 /dev/kvm
 
+      - name: Install managed-device system image
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "system-images;android-30;aosp_atd;x86"
+
       - name: Run deterministic UI tests
         run: >-
           ./gradlew --no-daemon pixel2Api30DebugAndroidTest
