@@ -1,9 +1,14 @@
 package org.peek.app.ui.viewer
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +34,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -50,13 +60,26 @@ fun ViewerRoute(
     onShowHistory: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    BackHandler(onBack = onBack)
+    var fullscreen by rememberSaveable { mutableStateOf(false) }
+    val sourceUrl = (state as? ViewerState.Ready)?.extraction?.sourceUrl
+    LaunchedEffect(sourceUrl) {
+        fullscreen = false
+    }
+    BackHandler {
+        if (fullscreen) {
+            fullscreen = false
+        } else {
+            onBack()
+        }
+    }
     ViewerScreen(
         state = state,
         onRetry = viewModel::retry,
         onViewed = viewModel::recordView,
         onBack = onBack,
         onShowHistory = onShowHistory,
+        fullscreen = fullscreen,
+        onFullscreenChange = { fullscreen = it },
     )
 }
 
@@ -69,41 +92,46 @@ private fun ViewerScreen(
     onViewed: (org.peek.app.domain.model.ExtractionResult) -> Unit,
     onBack: () -> Unit,
     onShowHistory: () -> Unit,
+    fullscreen: Boolean,
+    onFullscreenChange: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
+    FullscreenSystemBarsEffect(fullscreen)
     Scaffold(
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
-                navigationIcon = {
-                    TextButton(
-                        onClick = onBack,
-                        modifier = Modifier.sizeIn(minHeight = 48.dp),
-                    ) {
-                        Text("Home")
-                    }
-                },
-                title = {
-                    Column {
-                        Text("Peek")
-                        Text(
-                            text = "Streaming experiment",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                actions = {
-                    TextButton(
-                        onClick = onShowHistory,
-                        modifier = Modifier.sizeIn(minHeight = 48.dp),
-                    ) {
-                        Text("History")
-                    }
-                },
-            )
+            if (!fullscreen) {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                    navigationIcon = {
+                        TextButton(
+                            onClick = onBack,
+                            modifier = Modifier.sizeIn(minHeight = 48.dp),
+                        ) {
+                            Text("Home")
+                        }
+                    },
+                    title = {
+                        Column {
+                            Text("Peek")
+                            Text(
+                                text = "Streaming experiment",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    actions = {
+                        TextButton(
+                            onClick = onShowHistory,
+                            modifier = Modifier.sizeIn(minHeight = 48.dp),
+                        ) {
+                            Text("History")
+                        }
+                    },
+                )
+            }
         },
     ) { contentPadding ->
         when (state) {
@@ -130,55 +158,98 @@ private fun ViewerScreen(
                 modifier = Modifier
                     .padding(contentPadding)
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .then(
+                        if (fullscreen) {
+                            Modifier
+                        } else {
+                            Modifier.verticalScroll(rememberScrollState())
+                        },
+                    ),
             ) {
                 MediaViewer(
                     extraction = state.extraction,
                     onRetry = onRetry,
                     onViewed = { onViewed(state.extraction) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = if (fullscreen) {
+                        Modifier.fillMaxSize()
+                    } else {
+                        Modifier.fillMaxWidth()
+                    },
+                    fullscreen = fullscreen,
+                    onFullscreenChange = onFullscreenChange,
                 )
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Text(
-                        text = state.extraction.platform ?: "Media",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = state.extraction.title ?: "Untitled media",
-                        style = MaterialTheme.typography.headlineSmall,
-                    )
-                    state.extraction.author?.let { author ->
-                        Text(
-                            text = author,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    state.extraction.description?.let { description ->
-                        Text(
-                            text = description,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                    HorizontalDivider()
-                    OutlinedButton(
-                        onClick = {
-                            context.openOriginal(state.sourceUrl)
-                        },
-                        modifier = Modifier.sizeIn(minHeight = 48.dp),
+                if (!fullscreen) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text("Open original")
+                        Text(
+                            text = state.extraction.platform ?: "Media",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = state.extraction.title ?: "Untitled media",
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
+                        state.extraction.author?.let { author ->
+                            Text(
+                                text = author,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        state.extraction.description?.let { description ->
+                            Text(
+                                text = description,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                        HorizontalDivider()
+                        OutlinedButton(
+                            onClick = {
+                                context.openOriginal(state.sourceUrl)
+                            },
+                            modifier = Modifier.sizeIn(minHeight = 48.dp),
+                        ) {
+                            Text("Open original")
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun FullscreenSystemBarsEffect(fullscreen: Boolean) {
+    val activity = LocalContext.current.findActivity() ?: return
+    DisposableEffect(activity, fullscreen) {
+        val controller = WindowCompat.getInsetsController(
+            activity.window,
+            activity.window.decorView,
+        )
+        if (fullscreen) {
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+        } else {
+            controller.show(WindowInsetsCompat.Type.systemBars())
+        }
+        onDispose {
+            if (fullscreen) {
+                controller.show(WindowInsetsCompat.Type.systemBars())
+            }
+        }
+    }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
 
 private fun Context.openOriginal(url: String) {

@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -25,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -41,6 +45,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import org.peek.app.domain.model.ExtractedMedia
 import org.peek.app.domain.model.ExtractionResult
+import org.peek.app.R
 
 @UnstableApi
 @Composable
@@ -51,6 +56,8 @@ fun VideoPlayer(
     onViewed: () -> Unit,
     modifier: Modifier = Modifier,
     active: Boolean = true,
+    fullscreen: Boolean = false,
+    onFullscreenChange: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -106,7 +113,15 @@ fun VideoPlayer(
 
     Box(
         modifier = modifier
-            .aspectRatio(displayAspectRatio ?: DEFAULT_VIDEO_ASPECT_RATIO)
+            .then(
+                if (fullscreen) {
+                    Modifier.fillMaxSize()
+                } else {
+                    Modifier.aspectRatio(
+                        displayAspectRatio ?: DEFAULT_VIDEO_ASPECT_RATIO,
+                    )
+                },
+            )
             .background(androidx.compose.ui.graphics.Color.Black),
     ) {
         AndroidView(
@@ -126,6 +141,32 @@ fun VideoPlayer(
             update = { it.player = player },
             onRelease = { it.player = null },
         )
+
+        Surface(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp),
+            color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.58f),
+            contentColor = androidx.compose.ui.graphics.Color.White,
+            shape = MaterialTheme.shapes.extraLarge,
+        ) {
+            IconButton(onClick = { onFullscreenChange(!fullscreen) }) {
+                Icon(
+                    painter = painterResource(
+                        if (fullscreen) {
+                            R.drawable.ic_fullscreen_exit
+                        } else {
+                            R.drawable.ic_fullscreen
+                        },
+                    ),
+                    contentDescription = if (fullscreen) {
+                        "Exit fullscreen"
+                    } else {
+                        "Enter fullscreen"
+                    },
+                )
+            }
+        }
 
         if (playbackFailed) {
             Column(

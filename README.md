@@ -21,6 +21,8 @@ The app opens to a URL input screen and does not start extraction until the user
   multi-entry results are presented as a swipeable gallery.
 - video frames automatically follow the decoded media aspect ratio, so portrait
   media such as Reels uses the available screen height instead of a 16:9 box.
+- video can enter an immersive fullscreen mode that survives rotation; Back exits
+  fullscreen before leaving the viewer.
 - shared text and supported web intents are reduced to a validated public HTTP/HTTPS URL before extraction.
 
 The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary. Current live results and the upstream TikTok CDN limitation are recorded in [`docs/experiment-results.md`](docs/experiment-results.md).

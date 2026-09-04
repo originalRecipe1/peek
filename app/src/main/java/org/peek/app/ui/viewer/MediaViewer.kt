@@ -34,6 +34,8 @@ fun MediaViewer(
     onRetry: () -> Unit,
     onViewed: () -> Unit,
     modifier: Modifier = Modifier,
+    fullscreen: Boolean = false,
+    onFullscreenChange: (Boolean) -> Unit = {},
 ) {
     if (extraction.media.size == 1) {
         SingleMediaViewer(
@@ -42,15 +44,23 @@ fun MediaViewer(
             onRetry = onRetry,
             onViewed = onViewed,
             modifier = modifier,
+            fullscreen = fullscreen,
+            onFullscreenChange = onFullscreenChange,
         )
         return
     }
 
     val pagerState = rememberPagerState(pageCount = { extraction.media.size })
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(GALLERY_HEIGHT)
+        modifier = modifier.then(
+            if (fullscreen) {
+                Modifier.fillMaxSize()
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .height(GALLERY_HEIGHT)
+            },
+        )
             .background(Color.Black),
     ) {
         HorizontalPager(
@@ -69,6 +79,8 @@ fun MediaViewer(
                     onRetry = onRetry,
                     onViewed = onViewed,
                     modifier = Modifier.fillMaxSize(),
+                    fullscreen = fullscreen,
+                    onFullscreenChange = onFullscreenChange,
                 )
             }
         }
@@ -100,6 +112,8 @@ private fun SingleMediaViewer(
     onRetry: () -> Unit,
     onViewed: () -> Unit,
     modifier: Modifier,
+    fullscreen: Boolean,
+    onFullscreenChange: (Boolean) -> Unit,
 ) {
     when (media) {
         is ExtractedMedia.Video -> VideoPlayer(
@@ -108,6 +122,8 @@ private fun SingleMediaViewer(
             onRetry = onRetry,
             onViewed = onViewed,
             modifier = modifier.fillMaxWidth(),
+            fullscreen = fullscreen,
+            onFullscreenChange = onFullscreenChange,
         )
 
         is ExtractedMedia.Image -> ZoomableImage(
@@ -143,6 +159,8 @@ private fun MediaPage(
     onRetry: () -> Unit,
     onViewed: () -> Unit,
     modifier: Modifier,
+    fullscreen: Boolean,
+    onFullscreenChange: (Boolean) -> Unit,
 ) {
     when (media) {
         is ExtractedMedia.Video -> Box(
@@ -156,6 +174,8 @@ private fun MediaPage(
                 onRetry = onRetry,
                 onViewed = onViewed,
                 modifier = Modifier.fillMaxWidth(),
+                fullscreen = fullscreen,
+                onFullscreenChange = onFullscreenChange,
             )
         }
 
