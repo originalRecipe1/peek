@@ -1,0 +1,1 @@
+Prepared signed, reproducible releases using the same source-only yt-dlp build path as F-Droid.
