@@ -13,7 +13,8 @@ The app opens to a URL input screen and does not start extraction until the user
 
 - yt-dlp/Python can be packaged and initialized on Android.
 - yt-dlp output can be normalized without exposing yt-dlp types to the UI.
-- a public PeerTube page can be extracted locally and streamed to Media3 without creating a permanent media file.
+- public YouTube, Reddit, X, Instagram, and PeerTube pages have been extracted
+  locally and streamed to Media3 without creating a permanent media file.
 - destroying the viewer cancels its ViewModel work and terminates the active yt-dlp process; playback is released with the UI lifecycle.
 - playback that actually starts is recorded in a private, on-device viewing history.
 - images are shown with pinch-to-zoom and pan, audio uses native playback controls, and
@@ -22,7 +23,7 @@ The app opens to a URL input screen and does not start extraction until the user
   media such as Reels uses the available screen height instead of a 16:9 box.
 - shared text and supported web intents are reduced to a validated public HTTP/HTTPS URL before extraction.
 
-The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary but still need live compatibility runs.
+The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary. Current live results and the upstream TikTok CDN limitation are recorded in [`docs/experiment-results.md`](docs/experiment-results.md).
 
 This is not the final UI. Quality selection, cookies, and saving remain intentionally deferred until the core viewer has been exercised on devices. Whether a particular image or gallery works still depends on the media entries exposed by that site's current yt-dlp extractor.
 
