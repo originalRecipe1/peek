@@ -1,0 +1,115 @@
+name: Update yt-dlp
+
+on:
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-yt-dlp
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Check, verify, and propose update
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out Peek
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Check the official stable release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          latest="$(gh api repos/yt-dlp/yt-dlp/releases/latest --jq .tag_name)"
+          if [[ ! "$latest" =~ ^20[0-9]{2}\.[0-9]{2}\.[0-9]{2}(\.[0-9]+)?$ ]]; then
+            echo "Refusing unexpected release tag: $latest" >&2
+            exit 1
+          fi
+
+          release_dir="$RUNNER_TEMP/yt-dlp-$latest"
+          mkdir -p "$release_dir"
+          gh release download "$latest" \
+            --repo yt-dlp/yt-dlp \
+            --pattern yt-dlp \
+            --pattern SHA2-256SUMS \
+            --dir "$release_dir"
+
+          published_sha="$(awk '$2 == "yt-dlp" { print $1 }' "$release_dir/SHA2-256SUMS")"
+          actual_sha="$(sha256sum "$release_dir/yt-dlp" | awk '{ print $1 }')"
+          if [[ ! "$published_sha" =~ ^[0-9a-f]{64}$ ]] || [[ "$actual_sha" != "$published_sha" ]]; then
+            echo "The downloaded yt-dlp asset does not match its published checksum" >&2
+            exit 1
+          fi
+
+          current="$(sed -nE 's/^ytDlpEngine = "([^"]+)"$/\1/p' gradle/libs.versions.toml)"
+          current_sha="$(sed -nE 's/^val ytDlpEngineSha256 = "([0-9a-f]{64})"$/\1/p' app/build.gradle.kts)"
+          if [[ "$latest" == "$current" ]]; then
+            if [[ "$actual_sha" != "$current_sha" ]]; then
+              echo "The pinned immutable release has changed checksum" >&2
+              exit 1
+            fi
+            echo "yt-dlp $current is already current"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          python3 scripts/update_yt_dlp.py "$latest" "$actual_sha"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "version=$latest" >> "$GITHUB_OUTPUT"
+          echo "sha256=$actual_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Test the update
+        if: steps.release.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+          embedded_sha="$(unzip -p app/build/outputs/apk/debug/app-debug.apk res/raw/ytdlp | sha256sum | awk '{ print $1 }')"
+          test "$embedded_sha" = "${{ steps.release.outputs.sha256 }}"
+          git diff --check
+
+      - name: Open or refresh the update pull request
+        if: steps.release.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          branch="automation/yt-dlp-$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add app/build.gradle.kts gradle/libs.versions.toml README.md
+          git commit -m "chore: update yt-dlp to $VERSION"
+          git push --force origin "HEAD:refs/heads/$branch"
+
+          existing_pr="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [[ -z "$existing_pr" ]]; then
+            gh pr create \
+              --base "$GITHUB_REF_NAME" \
+              --head "$branch" \
+              --title "chore: update yt-dlp to $VERSION" \
+              --body "Updates the pinned stable yt-dlp engine to **$VERSION**. The official asset checksum was verified, the embedded APK resource matches it, and unit tests plus Android lint passed. Please smoke-test representative social links before merging."
+          fi
