@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# yt-dlp's Makefile uses Info-ZIP. Normalize the process environment so the
+# embedded zipimport archive does not depend on the builder's timezone, umask,
+# UID, or GID.
+umask 022
+export TZ=UTC
+export ZIPOPT=-X
+
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/.." && pwd)"
 source_dir="$repo_root/third_party/yt-dlp"
@@ -26,6 +33,10 @@ esac
 rm -rf -- "$build_dir"
 mkdir -p "$build_dir"
 git -C "$source_dir" archive --format=tar HEAD | tar -xf - -C "$build_dir"
+# GNU tar preserves the archive's group-write bit when run as root, while
+# non-root extraction applies the umask. Normalize the files that are packed by
+# yt-dlp's Makefile so both environments emit the same central-directory modes.
+find "$build_dir/yt_dlp" -type f -exec chmod 0644 {} +
 make -C "$build_dir" lazy-extractors yt-dlp
 
 actual_version="$("$output_file" --ignore-config --version)"
