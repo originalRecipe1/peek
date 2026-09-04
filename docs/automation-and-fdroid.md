@@ -70,9 +70,9 @@ RepoType: git
 Repo: https://github.com/originalRecipe1/peek.git
 
 Builds:
-  - versionName: 0.1.0-experiment.3
-    versionCode: 3
-    commit: ed1bab12da2265f3b7031975a01014ff0bfce758
+  - versionName: 0.1.0-experiment.4
+    versionCode: 4
+    commit: 4622af352a3a21ec1752e51f8e90528b16ffba7c
     submodules: true
     sudo:
       - apt-get update
@@ -89,8 +89,8 @@ Builds:
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
 UpdateCheckData: app/build.gradle.kts|versionCode\s*=\s*(\d+)||v(.*)
-CurrentVersion: 0.1.0-experiment.3
-CurrentVersionCode: 3
+CurrentVersion: 0.1.0-experiment.4
+CurrentVersionCode: 4
 ```
 
 This recipe was normalized and linted successfully in the current official
@@ -100,7 +100,7 @@ produced the expected unsigned APK with an embedded yt-dlp hash matching the
 source-built file. A second build starting with an empty Gradle cache confirmed
 that the declared repositories resolve the complete dependency graph; Android
 SDK 36 was mounted because the standalone image only bundled an older platform.
-The public `v0.1.0-experiment.3` tag resolves to the exact commit pinned above.
+The public `v0.1.0-experiment.4` tag resolves to the exact commit pinned above.
 Repeat these checks if the recipe changes before submission.
 
 Store text, the app icon, and phone screenshots are maintained in the upstream
