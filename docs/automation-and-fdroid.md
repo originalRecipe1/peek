@@ -56,12 +56,12 @@ include a build block based on the following template. Replace the commit marker
 with the full commit hash for the release tag during the initial submission:
 
 ```yaml
-Categories:
-  - Internet
-License: GPL-3.0-only
 AntiFeatures:
   NonFreeNet:
     en-US: Connects to third-party social platforms and media CDNs
+Categories:
+  - Internet
+License: GPL-3.0-only
 SourceCode: https://github.com/originalRecipe1/peek
 IssueTracker: https://github.com/originalRecipe1/peek/issues
 
@@ -73,14 +73,13 @@ Builds:
     versionCode: 1
     commit: REPLACE_WITH_FULL_RELEASE_COMMIT
     submodules: true
-    build: |-
-      ./scripts/build_yt_dlp_from_source.sh
-      ytdlp_file="$PWD/build/yt-dlp-source/yt-dlp"
-      ytdlp_sha="$(sha256sum "$ytdlp_file" | awk '{print $1}')"
-      ./gradlew --offline --no-daemon assembleRelease \
-        -Ppeek.ytdlp.file="$ytdlp_file" \
-        -Ppeek.ytdlp.sha256="$ytdlp_sha"
     output: app/build/outputs/apk/release/app-release-unsigned.apk
+    build:
+      - ./scripts/build_yt_dlp_from_source.sh
+      - ytdlp_file="$PWD/build/yt-dlp-source/yt-dlp"
+      - ytdlp_sha="$(sha256sum "$ytdlp_file" | awk '{print $1}')"
+      - ./gradlew --offline --no-daemon assembleRelease -Ppeek.ytdlp.file="$ytdlp_file"
+        -Ppeek.ytdlp.sha256="$ytdlp_sha"
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
@@ -88,6 +87,11 @@ UpdateCheckData: app/build.gradle.kts|versionCode\s*=\s*(\d+)||v(.*)
 CurrentVersion: 0.1.0-experiment.1
 CurrentVersionCode: 1
 ```
+
+This template was normalized and linted successfully in the current official
+`fdroiddata` configuration with the current `fdroidserver` container on
+2026-09-04. Replace the commit marker before repeating that check for the first
+submission.
 
 F-Droid will then notice the release tags, update its build metadata, and queue a
 new build. Publication is asynchronous and remains controlled by F-Droid.
