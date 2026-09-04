@@ -64,6 +64,8 @@ License: GPL-3.0-only
 SourceCode: https://github.com/originalRecipe1/peek
 IssueTracker: https://github.com/originalRecipe1/peek/issues
 
+AutoName: Peek
+
 RepoType: git
 Repo: https://github.com/originalRecipe1/peek.git
 
@@ -75,13 +77,14 @@ Builds:
     sudo:
       - apt-get update
       - apt-get install -y make zip
+    gradle:
+      - yes
     output: app/build/outputs/apk/release/app-release-unsigned.apk
     build:
       - ./scripts/build_yt_dlp_from_source.sh
-      - ytdlp_file="$PWD/build/yt-dlp-source/yt-dlp"
-      - ytdlp_sha="$(sha256sum "$ytdlp_file" | awk '{print $1}')"
-      - gradle --offline --no-daemon assembleRelease -Ppeek.ytdlp.file="$ytdlp_file"
-        -Ppeek.ytdlp.sha256="$ytdlp_sha"
+      - echo "peek.ytdlp.file=$PWD/build/yt-dlp-source/yt-dlp" >> gradle.properties
+      - echo "peek.ytdlp.sha256=$(sha256sum build/yt-dlp-source/yt-dlp | awk '{print
+        $1}')" >> gradle.properties
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
@@ -94,12 +97,11 @@ This recipe was normalized and linted successfully in the current official
 `fdroiddata` configuration with the current `fdroidserver` container on
 2026-09-04. Its full source scan reported zero problems, and its offline build
 produced the expected unsigned APK with an embedded yt-dlp hash matching the
-source-built file. The standalone test container's initially empty Maven cache
-was populated from the repositories declared by the project before that offline
-build, and Android SDK 36 was mounted because the standalone image only bundled
-an older platform. The public `v0.1.0-experiment.2` tag resolves to the exact
-commit pinned above. Repeat these checks if the recipe changes before
-submission.
+source-built file. A second build starting with an empty Gradle cache confirmed
+that the declared repositories resolve the complete dependency graph; Android
+SDK 36 was mounted because the standalone image only bundled an older platform.
+The public `v0.1.0-experiment.2` tag resolves to the exact commit pinned above.
+Repeat these checks if the recipe changes before submission.
 
 F-Droid will then notice the release tags, update its build metadata, and queue a
 new build. Publication is asynchronous and remains controlled by F-Droid.
