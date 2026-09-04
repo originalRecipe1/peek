@@ -1,0 +1,2 @@
+Polished the app header, synchronized light and dark system UI without restarts,
+matched the launch screen to dark mode, and added themed launcher icon support.
