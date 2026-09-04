@@ -89,10 +89,10 @@ Builds:
     gradle:
       - yes
     build:
-      - ./scripts/build_yt_dlp_from_source.sh
-      - echo "peek.ytdlp.file=$PWD/build/yt-dlp-source/yt-dlp" >> gradle.properties
-      - echo "peek.ytdlp.sha256=$(sha256sum build/yt-dlp-source/yt-dlp | awk '{print
-        $1}')" >> gradle.properties
+      - ../scripts/build_yt_dlp_from_source.sh
+      - echo "peek.ytdlp.file=$PWD/../build/yt-dlp-source/yt-dlp" >> ../gradle.properties
+      - echo "peek.ytdlp.sha256=$(sha256sum ../build/yt-dlp-source/yt-dlp | awk '{print
+        $1}')" >> ../gradle.properties
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.]+)?$
