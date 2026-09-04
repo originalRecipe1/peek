@@ -149,12 +149,6 @@ fun HomeScreen(
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge,
             )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = "Extraction happens on this device. The source platform and its CDN can still observe network requests.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
 }
