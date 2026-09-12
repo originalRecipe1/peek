@@ -1,7 +1,6 @@
 package org.peek.app
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -25,7 +24,7 @@ class MainActivityTest {
     fun coldLaunchStaysOnTheIdleHomeScreen() {
         composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onNodeWithText("Extracting stream information…").assertDoesNotExist()
-        composeRule.onNodeWithText("Big Buck Bunny", substring = true).assertIsNotDisplayed()
+        composeRule.onNodeWithText("Open original").assertDoesNotExist()
     }
 
     @Test
@@ -82,7 +81,7 @@ class MainActivityTest {
     fun backButtonAnimatesHomeAndHistoryCanBeReopened() {
         composeRule.onNodeWithContentDescription("Open history").performClick()
         composeRule.onNodeWithText("History").assertIsDisplayed()
-        composeRule.onNodeWithText("Back").performClick()
+        composeRule.onNodeWithContentDescription("Back").performClick()
         composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Open history").performClick()
         composeRule.onNodeWithText("History").assertIsDisplayed()

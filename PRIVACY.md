@@ -11,9 +11,12 @@ anonymous.
 
 Viewing history is opt-in through use of the viewer and is stored only in Unfurlit's
 private on-device SQLite database. It contains the original page URL, basic
-display metadata, media type/count, duration, and viewing time. It excludes
-direct CDN URLs, request headers, cookies, descriptions, thumbnails, and raw
-extractor output. History is excluded from Android backup and device transfer
+display metadata, media type/count, duration, viewing time, and a small thumbnail when available. After a view,
+Unfurlit may fetch its preview image from the original media host and save a
+resized copy locally. Browsing History uses these local copies without making
+network requests. It excludes direct CDN URLs, request headers, cookies,
+descriptions, and raw extractor output. Removing a visit also removes its
+saved thumbnail. History is excluded from Android backup and device transfer
 and can be deleted per item or cleared in full.
 
 Unfurlit reads the clipboard only after the user presses the Paste button. Release

@@ -21,6 +21,7 @@ class SqliteHistoryRepository(
     context: Context,
 ) : HistoryRepository {
     private val database = HistoryDatabase(context.applicationContext)
+    private val thumbnails = HistoryThumbnailLoader(context.applicationContext)
     private val changes = MutableStateFlow(0L)
     private val writeMutex = Mutex()
 
@@ -34,8 +35,14 @@ class SqliteHistoryRepository(
             viewedAtEpochMillis = System.currentTimeMillis(),
         )
         withContext(Dispatchers.IO) {
+            val id = writeMutex.withLock {
+                database.insert(entry).also { changes.value += 1 }
+            }
+            // Record immediately; a slow or unavailable preview must not delay history.
+            val thumbnail = thumbnails.load(result) ?: return@withContext
             writeMutex.withLock {
-                database.insert(entry)
+                // UPDATE cannot recreate an entry removed while its preview was loading.
+                database.updateThumbnail(id, thumbnail)
                 changes.value += 1
             }
         }
@@ -60,9 +67,10 @@ class SqliteHistoryRepository(
     }
 }
 
-private class HistoryDatabase(
+internal class HistoryDatabase(
     context: Context,
-) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    name: String = DATABASE_NAME,
+) : SQLiteOpenHelper(context, name, null, DATABASE_VERSION) {
     override fun onCreate(database: SQLiteDatabase) {
         database.execSQL(
             """
@@ -75,7 +83,8 @@ private class HistoryDatabase(
                 $COLUMN_MEDIA_KIND TEXT NOT NULL,
                 $COLUMN_MEDIA_COUNT INTEGER NOT NULL,
                 $COLUMN_DURATION_SECONDS INTEGER,
-                $COLUMN_VIEWED_AT INTEGER NOT NULL
+                $COLUMN_VIEWED_AT INTEGER NOT NULL,
+                $COLUMN_THUMBNAIL BLOB
             )
             """.trimIndent(),
         )
@@ -85,9 +94,13 @@ private class HistoryDatabase(
         )
     }
 
-    override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+    override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 2) {
+            database.execSQL("ALTER TABLE $TABLE_HISTORY ADD COLUMN $COLUMN_THUMBNAIL BLOB")
+        }
+    }
 
-    fun insert(entry: HistoryEntry) {
+    fun insert(entry: HistoryEntry): Long {
         val values = ContentValues().apply {
             put(COLUMN_SOURCE_URL, entry.sourceUrl)
             put(COLUMN_PLATFORM, entry.platform)
@@ -98,7 +111,16 @@ private class HistoryDatabase(
             entry.durationSeconds?.let { put(COLUMN_DURATION_SECONDS, it) }
             put(COLUMN_VIEWED_AT, entry.viewedAtEpochMillis)
         }
-        writableDatabase.insertOrThrow(TABLE_HISTORY, null, values)
+        return writableDatabase.insertOrThrow(TABLE_HISTORY, null, values)
+    }
+
+    fun updateThumbnail(id: Long, thumbnail: ByteArray) {
+        writableDatabase.update(
+            TABLE_HISTORY,
+            ContentValues().apply { put(COLUMN_THUMBNAIL, thumbnail) },
+            "$COLUMN_ID = ?",
+            arrayOf(id.toString()),
+        )
     }
 
     fun delete(id: Long) {
@@ -132,6 +154,7 @@ private class HistoryDatabase(
             val mediaCountIndex = cursor.getColumnIndexOrThrow(COLUMN_MEDIA_COUNT)
             val durationIndex = cursor.getColumnIndexOrThrow(COLUMN_DURATION_SECONDS)
             val viewedAtIndex = cursor.getColumnIndexOrThrow(COLUMN_VIEWED_AT)
+            val thumbnailIndex = cursor.getColumnIndexOrThrow(COLUMN_THUMBNAIL)
 
             while (cursor.moveToNext()) {
                 add(
@@ -145,6 +168,7 @@ private class HistoryDatabase(
                         mediaCount = cursor.getInt(mediaCountIndex),
                         durationSeconds = cursor.nullableLong(durationIndex),
                         viewedAtEpochMillis = cursor.getLong(viewedAtIndex),
+                        thumbnail = if (cursor.isNull(thumbnailIndex)) null else cursor.getBlob(thumbnailIndex),
                     ),
                 )
             }
@@ -162,7 +186,7 @@ private class HistoryDatabase(
 
     private companion object {
         const val DATABASE_NAME = "peek-history.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
         const val TABLE_HISTORY = "history"
         const val COLUMN_ID = "id"
         const val COLUMN_SOURCE_URL = "source_url"
@@ -173,6 +197,7 @@ private class HistoryDatabase(
         const val COLUMN_MEDIA_COUNT = "media_count"
         const val COLUMN_DURATION_SECONDS = "duration_seconds"
         const val COLUMN_VIEWED_AT = "viewed_at"
+        const val COLUMN_THUMBNAIL = "thumbnail"
         val HISTORY_COLUMNS = arrayOf(
             COLUMN_ID,
             COLUMN_SOURCE_URL,
@@ -183,6 +208,7 @@ private class HistoryDatabase(
             COLUMN_MEDIA_COUNT,
             COLUMN_DURATION_SECONDS,
             COLUMN_VIEWED_AT,
+            COLUMN_THUMBNAIL,
         )
     }
 }

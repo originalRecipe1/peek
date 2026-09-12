@@ -1,45 +1,35 @@
 package org.peek.app.ui.history
 
 import android.text.format.DateUtils
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import org.peek.app.R
 import org.peek.app.domain.model.HistoryEntry
 import org.peek.app.domain.model.HistoryMediaKind
 import java.net.URI
+import java.util.Calendar
 
 @Composable
 fun HistoryRoute(
@@ -48,18 +38,12 @@ fun HistoryRoute(
     onOpen: (HistoryEntry) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    HistoryScreen(
-        state = state,
-        onBack = onBack,
-        onOpen = onOpen,
-        onRemove = viewModel::remove,
-        onClear = viewModel::clear,
-    )
+    HistoryScreen(state, onBack, onOpen, viewModel::remove, viewModel::clear)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HistoryScreen(
+internal fun HistoryScreen(
     state: HistoryState,
     onBack: () -> Unit,
     onOpen: (HistoryEntry) -> Unit,
@@ -68,66 +52,90 @@ private fun HistoryScreen(
 ) {
     val entries = (state as? HistoryState.Ready)?.entries.orEmpty()
     var showClearConfirmation by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    val groups = entries.groupBy { entry ->
+        val day = Calendar.getInstance().apply {
+            timeInMillis = entry.viewedAtEpochMillis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        day.timeInMillis
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("History") },
+                title = { Text("History", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
-                    TextButton(
-                        onClick = onBack,
-                        modifier = Modifier.sizeIn(minHeight = 48.dp),
-                    ) {
-                        Text("Back")
+                    IconButton(onClick = onBack) {
+                        Icon(painterResource(R.drawable.ic_arrow_back), "Back")
                     }
                 },
                 actions = {
                     if (entries.isNotEmpty()) {
-                        TextButton(
-                            onClick = { showClearConfirmation = true },
-                            modifier = Modifier.sizeIn(minHeight = 48.dp),
-                        ) {
-                            Text("Clear")
+                        IconButton(onClick = { showClearConfirmation = true }) {
+                            Icon(painterResource(R.drawable.ic_delete), "Clear history")
                         }
                     }
                 },
             )
         },
     ) { contentPadding ->
-        when (state) {
-            HistoryState.Loading -> HistoryMessage(
-                message = "Loading history…",
-                showProgress = true,
-                modifier = Modifier.padding(contentPadding),
-            )
-
-            HistoryState.Failed -> HistoryMessage(
-                message = "History could not be loaded.",
-                modifier = Modifier.padding(contentPadding),
-            )
-
-            is HistoryState.Ready -> if (state.entries.isEmpty()) {
-                HistoryMessage(
-                    message = "Media you watch will appear here.",
-                    modifier = Modifier.padding(contentPadding),
+        Box(Modifier.padding(contentPadding).fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+            when (state) {
+                HistoryState.Loading -> HistoryMessage("Loading history…", showProgress = true)
+                HistoryState.Failed -> HistoryMessage(
+                    "History is unavailable",
+                    "Your history could not be loaded. Try opening this page again.",
                 )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(contentPadding)
-                        .fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                ) {
-                    items(
-                        items = state.entries,
-                        key = HistoryEntry::id,
-                    ) { entry ->
-                        HistoryRow(
-                            entry = entry,
-                            onOpen = { onOpen(entry) },
-                            onRemove = { onRemove(entry.id) },
-                        )
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                is HistoryState.Ready -> if (entries.isEmpty()) {
+                    HistoryMessage("A little rewind", "Media you watch will appear here.\nOpen a link to start your collection.")
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.widthIn(max = 680.dp).fillMaxSize(),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        item(key = "intro") {
+                            Column(Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)) {
+                                Text("Recently opened", style = MaterialTheme.typography.headlineSmall)
+                                Text(
+                                    "${entries.size} ${if (entries.size == 1) "visit" else "visits"} · Your media, revisited",
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        groups.forEach { (day, dayEntries) ->
+                            item(key = "day-$day") {
+                                val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
+                                val label = when {
+                                    DateUtils.isToday(day) -> "Today"
+                                    Calendar.getInstance().apply { timeInMillis = day }.let {
+                                        it.get(Calendar.YEAR) == yesterday.get(Calendar.YEAR) &&
+                                            it.get(Calendar.DAY_OF_YEAR) == yesterday.get(Calendar.DAY_OF_YEAR)
+                                    } -> "Yesterday"
+                                    else -> DateUtils.formatDateTime(context, day, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH)
+                                }
+                                Text(
+                                    label,
+                                    modifier = Modifier.padding(start = 8.dp, top = 12.dp, bottom = 2.dp).semantics { heading() },
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            items(dayEntries, key = HistoryEntry::id) { entry ->
+                                HistoryRow(
+                                    entry = entry,
+                                    onOpen = { onOpen(entry) },
+                                    onRemove = { onRemove(entry.id) },
+                                    modifier = Modifier.animateItem(),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -137,22 +145,14 @@ private fun HistoryScreen(
     if (showClearConfirmation) {
         AlertDialog(
             onDismissRequest = { showClearConfirmation = false },
+            icon = { Icon(painterResource(R.drawable.ic_delete), null) },
             title = { Text("Clear viewing history?") },
-            text = { Text("This removes every locally stored history entry.") },
+            text = { Text("This removes all visits and their saved thumbnails from this device.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showClearConfirmation = false
-                        onClear()
-                    },
-                ) {
-                    Text("Clear")
-                }
+                TextButton(onClick = { showClearConfirmation = false; onClear() }) { Text("Clear history") }
             },
             dismissButton = {
-                TextButton(onClick = { showClearConfirmation = false }) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = { showClearConfirmation = false }) { Text("Cancel") }
             },
         )
     }
@@ -163,84 +163,102 @@ private fun HistoryRow(
     entry: HistoryEntry,
     onOpen: () -> Unit,
     onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val viewedAt = remember(entry.viewedAtEpochMillis) {
-        DateUtils.getRelativeDateTimeString(
-            context,
-            entry.viewedAtEpochMillis,
-            DateUtils.MINUTE_IN_MILLIS,
-            DateUtils.WEEK_IN_MILLIS,
-            DateUtils.FORMAT_SHOW_TIME,
-        ).toString()
-    }
-    ListItem(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onOpen),
-        overlineContent = {
-            Text(
-                text = entry.platform ?: "Media",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        headlineContent = {
-            Text(
-                text = entry.title ?: entry.sourceHost() ?: "Untitled media",
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                entry.author?.let { author ->
-                    Text(
-                        text = author,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+    var showMenu by remember { mutableStateOf(false) }
+    val title = entry.title ?: entry.sourceHost() ?: "Untitled media"
+    val time = DateUtils.formatDateTime(context, entry.viewedAtEpochMillis, DateUtils.FORMAT_SHOW_TIME)
+    Card(
+        onClick = onOpen,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        Row(Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            HistoryThumbnail(entry)
+            Column(Modifier.weight(1f).padding(start = 14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    entry.platform ?: entry.sourceHost() ?: "Media",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                entry.author?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Text(
-                    text = "${entry.mediaDescription()} · $viewedAt",
+                    "${entry.mediaDescription()} · $time",
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-        },
-        trailingContent = {
-            TextButton(
-                onClick = onRemove,
-                modifier = Modifier.sizeIn(minHeight = 48.dp),
-            ) {
-                Text("Remove")
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(painterResource(R.drawable.ic_more_vert), "Options for $title", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Remove from history") },
+                        leadingIcon = { Icon(painterResource(R.drawable.ic_delete), null) },
+                        onClick = { showMenu = false; onRemove() },
+                    )
+                }
             }
-        },
-    )
+        }
+    }
 }
 
 @Composable
-private fun HistoryMessage(
-    message: String,
-    modifier: Modifier = Modifier,
-    showProgress: Boolean = false,
-) {
+private fun HistoryThumbnail(entry: HistoryEntry) {
+    val icon = when (entry.mediaKind) {
+        HistoryMediaKind.Video -> R.drawable.ic_play
+        HistoryMediaKind.Audio -> R.drawable.ic_audio
+        HistoryMediaKind.Image -> R.drawable.ic_image
+        HistoryMediaKind.Gallery, HistoryMediaKind.Mixed -> R.drawable.ic_gallery
+    }
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            .semantics { liveRegion = LiveRegionMode.Polite },
+        Modifier.size(80.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.Center,
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (showProgress) CircularProgressIndicator()
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+        Icon(painterResource(icon), null, Modifier.size(30.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+        entry.thumbnail?.let {
+            AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        }
+        if (entry.thumbnail != null) {
+            Surface(
+                modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp),
+                shape = RoundedCornerShape(6.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+            ) {
+                Icon(painterResource(icon), null, Modifier.padding(3.dp).size(14.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryMessage(title: String, description: String? = null, showProgress: Boolean = false) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    ) {
+        if (showProgress) {
+            CircularProgressIndicator()
+        } else {
+            Box(
+                Modifier.size(96.dp).background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(32.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(painterResource(R.drawable.ic_history), null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+        }
+        Text(title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+        description?.let {
+            Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
         }
     }
 }
@@ -261,12 +279,7 @@ private fun Long.formattedDuration(): String {
     val hours = this / 3_600
     val minutes = (this % 3_600) / 60
     val seconds = this % 60
-    return if (hours > 0) {
-        "%d:%02d:%02d".format(hours, minutes, seconds)
-    } else {
-        "%d:%02d".format(minutes, seconds)
-    }
+    return if (hours > 0) "%d:%02d:%02d".format(hours, minutes, seconds) else "%d:%02d".format(minutes, seconds)
 }
 
-private fun HistoryEntry.sourceHost(): String? =
-    runCatching { URI(sourceUrl).host }.getOrNull()
+private fun HistoryEntry.sourceHost(): String? = runCatching { URI(sourceUrl).host }.getOrNull()

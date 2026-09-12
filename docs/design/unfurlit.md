@@ -37,6 +37,21 @@ animated Home/History paging and predictive Back. See
 [`history-navigation.md`](history-navigation.md) for the interaction design. Version
 code 6 makes the rebrand an upgrade to the existing v5 release.
 
+## History presentation
+
+History uses date sections and rounded cards with 80dp previews, a platform label,
+title, creator, and compact media/time details. Back and clear use labelled icon
+buttons; each card has an overflow menu for removal. Missing artwork uses a
+Material-colored media icon. Card removal animates the remaining list.
+
+Database version 2 adds a nullable thumbnail blob without modifying existing
+visits. A new visit is recorded immediately, then its preview is fetched with
+a five-second timeout using the existing network protections. Only a re-encoded
+JPEG (at most 192px and 48KiB) is saved; remote URLs and headers are not stored.
+Browsing History loads local bytes. Removing a visit also removes its thumbnail;
+a pending download cannot recreate deleted entries. Existing visits retain their
+fallback icons unless the media is opened again as a new visit.
+
 ## Name research
 
 On September 12, 2026, exact-name general web searches and searches scoped to
@@ -50,10 +65,12 @@ exploration board, not a specification of app behavior or a release screenshot.
 
 ## Validation on September 12, 2026
 
-- 39 unit tests and 13 UI instrumentation tests passed; UI tests ran on an
+- 39 unit tests and 17 UI instrumentation tests passed; UI tests ran on an
   Android 16 / API 36 emulator. They cover full navigation, short/diagonal
   swipes, bidirectional paging, movement before release, retained typed input,
   button navigation, predictive Back cancellation/completion, and both edges.
+  History tests cover row/menu actions, clear confirmation, empty state,
+  database migration, thumbnail persistence, and deletion during preview loading.
 - Debug APK, test APK, Android lint, and the offline source-extractor release
   build passed. Lint reports dependency-update notices; the monochrome icon
   warning has been resolved.
@@ -61,7 +78,9 @@ exploration board, not a specification of app behavior or a release screenshot.
   `org.peek.app`. Its embedded extractor matches the locally source-built hash.
 - Light and dark screens were inspected, and changing the emulator's
   personalized system palette changed the app's accent colors.
-- A live YouTube Big Buck Bunny link played and created a history entry.
+- A live YouTube Big Buck Bunny link played and created a history entry with
+  a locally stored thumbnail. The History layout was checked in light/dark
+  modes and at 150% font size.
   The four store screenshots show the actual app: light home, playback,
   history, and dark home. The existing film attribution is retained.
 - The prepared F-Droid recipe passed `fdroid lint` and `fdroid rewritemeta`

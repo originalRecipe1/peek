@@ -134,12 +134,17 @@ with a card transition. Android's edge Back gesture also previews the return
 and can be cancelled. A link typed on Home is retained while visiting History.
 Opening an entry extracts
 the original page again so stale stream URLs are never reused. Individual events can
-be removed, and **Clear** removes the entire history after confirmation.
+be removed through their overflow menu, and the toolbar trash icon clears the
+entire history after confirmation. Visits appear in date groups with small
+thumbnails and media-type icons.
 
 History is stored in the app's private SQLite database and is excluded from Android
 backup and device transfer. A record contains the original page URL, basic display
 metadata, media type/count, duration, and viewing time. Direct CDN URLs, request
-headers, cookies, descriptions, thumbnails, and raw extractor output are not stored.
+headers, cookies, descriptions, and raw extractor output are not stored. Small
+thumbnail copies are saved locally after viewing when available; older entries
+and unavailable artwork use themed media icons. Thumbnails are removed with
+their entries, and browsing History makes no network requests.
 
 ## Manual experiment
 

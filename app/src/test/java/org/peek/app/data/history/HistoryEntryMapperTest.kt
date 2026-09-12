@@ -38,6 +38,7 @@ class HistoryEntryMapperTest {
         assertEquals(HistoryMediaKind.Video, entry.mediaKind)
         assertEquals(62L, entry.durationSeconds)
         assertEquals(1234L, entry.viewedAtEpochMillis)
+        assertNull(entry.thumbnail)
         assertEquals(
             setOf(
                 "id",
@@ -49,6 +50,7 @@ class HistoryEntryMapperTest {
                 "mediaCount",
                 "durationSeconds",
                 "viewedAtEpochMillis",
+                "thumbnail",
             ),
             entry::class.java.declaredFields
                 .map { it.name }
