@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 class PeekViewModel : ViewModel() {
     private val _destination = MutableStateFlow(PeekDestination.Home)
     val destination: StateFlow<PeekDestination> = _destination.asStateFlow()
-    private var historyReturnDestination = PeekDestination.Home
+    var historyReturnDestination = PeekDestination.Home
+        private set
 
     fun showHome() {
         _destination.value = PeekDestination.Home
@@ -19,6 +20,7 @@ class PeekViewModel : ViewModel() {
     }
 
     fun showHistory() {
+        if (_destination.value == PeekDestination.History) return
         historyReturnDestination = when (_destination.value) {
             PeekDestination.Viewer -> PeekDestination.Viewer
             else -> PeekDestination.Home

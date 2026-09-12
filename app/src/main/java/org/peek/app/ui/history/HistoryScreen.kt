@@ -1,7 +1,6 @@
 package org.peek.app.ui.history
 
 import android.text.format.DateUtils
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,7 +48,6 @@ fun HistoryRoute(
     onOpen: (HistoryEntry) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    BackHandler(onBack = onBack)
     HistoryScreen(
         state = state,
         onBack = onBack,
