@@ -19,4 +19,4 @@ Paste a link or share it to Unfurlit to open its media.
 Media extraction runs **on your device**, with no Unfurlit account, backend, ads, or analytics.
 Site availability varies; [supported content and limitations](docs/usage.md#sites-and-access) explain what to expect.
 
-[Report a bug](https://github.com/originalRecipe1/peek/issues) · [Build from source](docs/development.md#build) · [GPL-3.0-only](LICENSE)
+[Report a bug](https://github.com/originalRecipe1/unfurlit/issues) · [Build from source](docs/development.md#build) · [GPL-3.0-only](LICENSE)

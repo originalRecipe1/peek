@@ -4,7 +4,7 @@
 
 Unfurlit runs on Android 7.0 or newer on 64-bit ARM devices and x86_64 emulators.
 Install the APK attached to an **Unfurlit** release on
-[GitHub Releases](https://github.com/originalRecipe1/peek/releases). If no
+[GitHub Releases](https://github.com/originalRecipe1/unfurlit/releases). If no
 Unfurlit release is listed yet, see the [build instructions](development.md#build).
 
 Older **Peek** releases use `org.peek.app`. Unfurlit uses
@@ -74,7 +74,7 @@ See the [privacy policy](../PRIVACY.md).
 If a link fails, retry it and check whether the original page is still publicly
 accessible. For persistent issues, include a public example link and the app
 and yt-dlp versions shown by the viewer in a
-[bug report](https://github.com/originalRecipe1/peek/issues). Do not post private
+[bug report](https://github.com/originalRecipe1/unfurlit/issues). Do not post private
 links, login cookies, or credentials. Report security concerns through the
 [security policy](../SECURITY.md).
 

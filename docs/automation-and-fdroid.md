@@ -35,8 +35,9 @@ successful pipeline still reference the Peek v5 release documented below.
 The prepared replacement is [`fdroid/io.github.originalrecipe1.unfurlit.yml`](fdroid/io.github.originalrecipe1.unfurlit.yml).
 It targets Unfurlit `1.0.0`, version code 7, and the new
 `Unfurlit-%v.apk` release filename. Its new application ID is
-`io.github.originalrecipe1.unfurlit`; the signing certificate, repository URLs,
-extractor version, and source-build properties are retained.
+`io.github.originalrecipe1.unfurlit`, and its repository and release URLs point to
+`originalRecipe1/unfurlit`. The signing certificate, extractor version, and
+source-build properties are retained.
 This file is a submission candidate, not evidence of publication: its new tag
 and signed binary must exist before it is applied to the live merge request.
 
