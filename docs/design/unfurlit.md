@@ -32,7 +32,8 @@ consistent with that source when changing the silhouette.
 
 The Android application ID, internal package names, private history storage,
 extractor build properties, signing identity, and GitHub repository address
-remain stable. All app features and navigation behavior are retained. Version
+remain stable. Existing media features and navigation controls are retained. Home also supports
+a deliberate right swipe to open history. Version
 code 6 makes the rebrand an upgrade to the existing v5 release.
 
 ## Name research
@@ -48,8 +49,9 @@ exploration board, not a specification of app behavior or a release screenshot.
 
 ## Validation on September 12, 2026
 
-- 37 unit tests and 5 UI instrumentation tests passed; UI tests ran on an
-  Android 16 / API 36 emulator.
+- 37 unit tests and 8 UI instrumentation tests passed; UI tests ran on an
+  Android 16 / API 36 emulator. Gesture tests cover a right swipe, ignored
+  left/vertical/short drags, and cancellation.
 - Debug APK, test APK, Android lint, and the offline source-extractor release
   build passed. Lint reports dependency-update notices; the monochrome icon
   warning has been resolved.

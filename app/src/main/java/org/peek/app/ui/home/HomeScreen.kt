@@ -1,6 +1,7 @@
 package org.peek.app.ui.home
 
 import android.content.ClipboardManager
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,11 +27,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -52,6 +56,8 @@ fun HomeScreen(
     val context = LocalContext.current
     var input by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
+    val showHistory by rememberUpdatedState(onShowHistory)
+    val historySwipeThreshold = with(LocalDensity.current) { 80.dp.toPx() }
 
     fun submit() {
         val url = UrlTextParser.firstSupportedUrl(input)
@@ -72,6 +78,18 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(contentPadding)
                 .fillMaxSize()
+                .pointerInput(historySwipeThreshold) {
+                    var horizontalDistance = 0f
+                    detectHorizontalDragGestures(
+                        onDragStart = { horizontalDistance = 0f },
+                        onHorizontalDrag = { _, amount -> horizontalDistance += amount },
+                        onDragEnd = {
+                            if (horizontalDistance >= historySwipeThreshold) showHistory()
+                            horizontalDistance = 0f
+                        },
+                        onDragCancel = { horizontalDistance = 0f },
+                    )
+                }
                 .verticalScroll(rememberScrollState())
                 .imePadding()
                 .padding(horizontal = 24.dp, vertical = 32.dp),

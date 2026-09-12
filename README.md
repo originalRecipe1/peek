@@ -128,7 +128,7 @@ monitor. Repository setup and the proposed F-Droid build metadata are documented
 
 ## Viewing history
 
-Tap **History** on the Home or viewer screen to see prior viewing events. Opening an entry extracts
+Swipe right on Home, or tap **History** on the Home or viewer screen, to see prior viewing events. Opening an entry extracts
 the original page again so stale stream URLs are never reused. Individual events can
 be removed, and **Clear** removes the entire history after confirmation.
 
