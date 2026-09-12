@@ -14,9 +14,8 @@ Paste a link or share it to Unfurlit to open its media.
 - Open public links from **YouTube, Instagram, TikTok, Reddit, X/Twitter, PeerTube**, and more.
 - Watch fullscreen, seek through videos and audio, zoom into photos, and swipe through galleries.
 - Revisit media in **local history**, with thumbnails and swipe navigation.
-- Enjoy your **personalized Material colors**, light/dark appearance, and a themed launcher icon.
 
-Media extraction runs **on your device**, with no Unfurlit account, backend, ads, or analytics.
+Media extraction runs **on your device**, with no account, backend or ads.
 Site availability varies; [supported content and limitations](docs/usage.md#sites-and-access) explain what to expect.
 
 [Report a bug](https://github.com/originalRecipe1/unfurlit/issues) · [Build from source](docs/development.md#build) · [GPL-3.0-only](LICENSE)
