@@ -34,10 +34,24 @@ data class PlaybackSource(
     val format: StreamFormat,
     val mediaMimeType: String?,
     val formatId: String?,
+    val cookies: List<PlaybackCookie> = emptyList(),
 )
 
 enum class StreamFormat {
     Progressive,
     Hls,
     Dash,
+}
+
+/** Ephemeral extractor cookies; never persisted with viewing history. */
+data class PlaybackCookie(
+    val name: String,
+    val value: String,
+    val domain: String,
+    val path: String,
+    val expiresAtMillis: Long,
+    val secure: Boolean,
+    val hostOnly: Boolean,
+) {
+    override fun toString(): String = "PlaybackCookie(<redacted>)"
 }

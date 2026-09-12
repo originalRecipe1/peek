@@ -65,7 +65,7 @@ exploration board, not a specification of app behavior or a release screenshot.
 
 ## Validation on September 12, 2026
 
-- 39 unit tests and 17 UI instrumentation tests passed; UI tests ran on an
+- 44 unit tests and 17 UI instrumentation tests passed; UI tests ran on an
   Android 16 / API 36 emulator. They cover full navigation, short/diagonal
   swipes, bidirectional paging, movement before release, retained typed input,
   button navigation, predictive Back cancellation/completion, and both edges.

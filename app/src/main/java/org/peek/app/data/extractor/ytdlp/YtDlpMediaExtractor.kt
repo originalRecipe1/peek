@@ -149,7 +149,7 @@ class YtDlpMediaExtractor(
         const val OUTPUT_TEMPLATE =
             "%(.{extractor_key,extractor,title,uploader,channel,creator,description," +
                 "thumbnail,duration,url,protocol,ext,mime_type,vcodec,acodec,width," +
-                "height,video_ext,audio_ext,http_headers,format_id,requested_formats," +
+                "height,video_ext,audio_ext,http_headers,cookies,format_id,requested_formats," +
                 "requested_downloads,playlist_title,playlist_uploader," +
                 "playlist_description})j"
         const val SHORT_METADATA_PATTERN = "(?s)^(.{0,512}).*"

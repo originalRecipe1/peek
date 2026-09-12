@@ -13,6 +13,7 @@ import org.peek.app.domain.model.ExtractedMedia
 import org.peek.app.domain.model.ExtractionResult
 import org.peek.app.domain.model.PlaybackSource
 import org.peek.app.data.network.SafeHttpClient
+import org.peek.app.data.network.PlaybackCookieJar
 
 @UnstableApi
 class Media3PlaybackMapper(
@@ -38,7 +39,10 @@ class Media3PlaybackMapper(
     ): MediaSource = audio.source.toMediaSource(extraction)
 
     private fun PlaybackSource.toMediaSource(extraction: ExtractionResult): MediaSource {
-        val dataSourceFactory = OkHttpDataSource.Factory(client)
+        val scopedClient = if (cookies.isEmpty()) client else client.newBuilder()
+            .cookieJar(PlaybackCookieJar(cookies))
+            .build()
+        val dataSourceFactory = OkHttpDataSource.Factory(scopedClient)
             .setDefaultRequestProperties(headers)
         val sourceFactory = DefaultMediaSourceFactory(context)
             .setDataSourceFactory(dataSourceFactory)

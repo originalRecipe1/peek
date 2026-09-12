@@ -31,7 +31,7 @@ The app opens to a URL input screen and does not start extraction until the user
   fullscreen before leaving the viewer.
 - shared text and supported web intents are reduced to a validated public HTTP/HTTPS URL before extraction; HTTP inputs are upgraded to HTTPS before network access.
 
-The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary. Current live results and the upstream TikTok CDN limitation are recorded in [`docs/experiment-results.md`](docs/experiment-results.md).
+The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary. Current live results and the TikTok session-cookie fix are recorded in [`docs/experiment-results.md`](docs/experiment-results.md).
 
 This is not the final UI. Quality selection, cookies, and saving remain intentionally deferred until the core viewer has been exercised on devices. Whether a particular image or gallery works still depends on the media entries exposed by that site's current yt-dlp extractor.
 

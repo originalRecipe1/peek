@@ -3,3 +3,4 @@ Personalized Material colors, media viewing features, and existing viewing histo
 Swipe left to open History and right to return, with animated cards and Android predictive Back.
 
 Redesigned History with local thumbnails, date sections, and icon controls.
+Fix TikTok playback by retaining scoped temporary extraction cookies.

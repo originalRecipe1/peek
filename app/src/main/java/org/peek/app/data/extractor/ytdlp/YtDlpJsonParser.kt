@@ -204,6 +204,7 @@ internal object YtDlpJsonParser {
             format = streamFormat,
             mediaMimeType = mediaMimeType,
             formatId = optStringOrNull("format_id"),
+            cookies = YtDlpCookies.parse(optStringOrNull("cookies"), streamUrl),
         )
     }
 

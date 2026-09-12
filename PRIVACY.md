@@ -9,6 +9,10 @@ Those services can observe the device's IP address, request metadata, and any
 cookies the operating environment supplies. Unfurlit does not make this access
 anonymous.
 
+Temporary cookies obtained during extraction can be used for video/audio
+playback. They remain in memory for that media source and are sent only to
+matching domains and paths while valid; they are not saved in History.
+
 Viewing history is opt-in through use of the viewer and is stored only in Unfurlit's
 private on-device SQLite database. It contains the original page URL, basic
 display metadata, media type/count, duration, viewing time, and a small thumbnail when available. After a view,
