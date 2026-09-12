@@ -1,6 +1,13 @@
-# Peek
+# Unfurlit
 
-Peek is an experimental, FOSS-first Android media viewer for social-media links. This repository currently implements the core local streaming path:
+Unfurlit was previously named Peek. Its new Android application ID is
+`io.github.originalrecipe1.unfurlit`. This installs separately from the old
+`org.peek.app` app; existing Peek installations and history are not migrated.
+The interface follows Android's personalized Material colors on Android 12+
+and the system light/dark appearance. The folded-window icon also has an
+Android 13+ monochrome variant for themed launchers.
+
+Unfurlit is an experimental, FOSS-first Android media viewer for social-media links. This repository currently implements the core local streaming path:
 
 ```text
 paste / Share / Open With -> local yt-dlp extraction -> structured domain model
@@ -25,7 +32,7 @@ The app opens to a URL input screen and does not start extraction until the user
   fullscreen before leaving the viewer.
 - shared text and supported web intents are reduced to a validated public HTTP/HTTPS URL before extraction; HTTP inputs are upgraded to HTTPS before network access.
 
-The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary. Current live results and the upstream TikTok CDN limitation are recorded in [`docs/experiment-results.md`](docs/experiment-results.md).
+The playback layer also carries per-format HTTP headers, combines separate video/audio URLs with `MergingMediaSource`, and maps progressive, HLS, and DASH source types. Image requests receive the extractor-provided headers as well. Those cases, plus image, audio, and mixed-gallery normalization, have unit coverage at the extraction boundary. Current live results and the TikTok session-cookie fix are recorded in [`docs/experiment-results.md`](docs/experiment-results.md).
 
 This is not the final UI. Quality selection, cookies, and saving remain intentionally deferred until the core viewer has been exercised on devices. Whether a particular image or gallery works still depends on the media entries exposed by that site's current yt-dlp extractor.
 
@@ -55,7 +62,7 @@ Compose tests with `./gradlew connectedDebugAndroidTest`. CI runs the same tests
 on an AOSP API 30 Gradle-managed device. Live extraction tests remain manual so
 platform rate limits and datacenter blocking cannot make pull requests flaky.
 
-For Android Studio, select the shared **Peek** run configuration, choose one or
+For Android Studio, select the shared **Unfurlit** run configuration, choose one or
 more connected devices from the target-device selector, and press **Run**. The
 configuration launches the default activity and does not clear app data.
 
@@ -73,8 +80,8 @@ git submodule update --init
 source_file="$PWD/build/yt-dlp-source/yt-dlp"
 source_sha="$(sha256sum "$source_file" | awk '{print $1}')"
 ./gradlew --offline --no-daemon assembleRelease \
-  -Ppeek.ytdlp.file="$source_file" \
-  -Ppeek.ytdlp.sha256="$source_sha"
+  -Punfurlit.ytdlp.file="$source_file" \
+  -Punfurlit.ytdlp.sha256="$source_sha"
 ```
 
 This path performs no extractor download during Gradle execution. Gradle verifies
@@ -82,16 +89,16 @@ the supplied archive's checksum and embedded version before packaging it. The
 source-built variant has also completed the YouTube streaming proof of concept
 on the emulator.
 
-Before the first extraction in each app process, Peek verifies the app-private
+Before the first extraction in each app process, Unfurlit verifies the app-private
 extractor copy against the bundled checksum and atomically refreshes it when it
 differs. This makes APK upgrades activate their newly pinned yt-dlp version
 without clearing app data or viewing history.
 
-The first extraction can take noticeably longer while the bundled Python runtime initializes. Network behavior is limited to the submitted source platform/CDN; there is no Peek backend.
+The first extraction can take noticeably longer while the bundled Python runtime initializes. Network behavior is limited to the submitted source platform/CDN; there is no Unfurlit backend.
 
 ## Network safety
 
-Peek treats submitted URLs and extractor output as untrusted. Before extraction,
+Unfurlit treats submitted URLs and extractor output as untrusted. Before extraction,
 it upgrades HTTP inputs to HTTPS, follows a bounded redirect chain without
 reading response bodies, rejects cleartext redirects and extracted media URLs, and
 rejects any hop that targets localhost, a literal private address, or a hostname
@@ -102,7 +109,7 @@ origins, and extractor-provided connection, forwarding, host, length, and range
 headers are ignored.
 
 Extraction is cancellable and limited to 120 seconds. yt-dlp prints only the
-metadata and selected-format fields Peek consumes; short metadata is capped at
+metadata and selected-format fields Unfurlit consumes; short metadata is capped at
 512 characters, descriptions at 16 KiB, the normalized output at 2 MiB, and
 posts at 50 media entries. These controls reduce the attack surface, but they do
 not turn arbitrary extraction into a sandbox: yt-dlp and the bundled Python
@@ -122,18 +129,27 @@ monitor. Repository setup and the proposed F-Droid build metadata are documented
 
 ## Viewing history
 
-Tap **History** on the Home or viewer screen to see prior viewing events. Opening an entry extracts
+Swipe left within Home, or tap **History** on Home or the viewer, to see prior
+viewing events. Swipe right in History to return; the pages follow your finger
+with a card transition. Android's edge Back gesture also previews the return
+and can be cancelled. A link typed on Home is retained while visiting History.
+Opening an entry extracts
 the original page again so stale stream URLs are never reused. Individual events can
-be removed, and **Clear** removes the entire history after confirmation.
+be removed with their trash icon, and **Clear all** in the toolbar clears the
+entire history after confirmation. Visits appear in date groups with small
+thumbnails and media-type icons.
 
 History is stored in the app's private SQLite database and is excluded from Android
 backup and device transfer. A record contains the original page URL, basic display
 metadata, media type/count, duration, and viewing time. Direct CDN URLs, request
-headers, cookies, descriptions, thumbnails, and raw extractor output are not stored.
+headers, cookies, descriptions, and raw extractor output are not stored. Small
+thumbnail copies are saved locally after viewing when available; older entries
+and unavailable artwork use themed media icons. Thumbnails are removed with
+their entries, and browsing History makes no network requests.
 
 ## Manual experiment
 
-1. Install the debug APK and launch Peek.
+1. Install the debug APK and launch Unfurlit.
 2. Paste a public URL, or share/open one from another app.
 3. Wait for extraction to complete and verify that the native media viewer appears.
 4. Confirm playback/seeking for video and audio, zoom/pan for images, swiping and the item indicator for galleries, and the new history event.
@@ -141,7 +157,7 @@ headers, cookies, descriptions, thumbnails, and raw extractor output are not sto
 6. Capture whether each result is progressive, HLS/DASH, muxed, or split audio/video.
 7. Record extraction time, playback errors, and the produced APK size before expanding the UI.
 
-Do not use private links, cookies, or credentials in committed test fixtures. Peek's own success log records only the extractor name and media count. Failures emit a length-limited diagnostic with URLs and common secret fields redacted; direct media URLs, headers, cookies, and raw yt-dlp output are never deliberately logged.
+Do not use private links, cookies, or credentials in committed test fixtures. Unfurlit's own success log records only the extractor name and media count. Failures emit a length-limited diagnostic with URLs and common secret fields redacted; direct media URLs, headers, cookies, and raw yt-dlp output are never deliberately logged.
 
 ## Architecture
 

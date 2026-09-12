@@ -1,0 +1,7 @@
+Unfurlit 1.0.0 is here, with a folded-window icon and refreshed home screen.
+Personalized Material colors and media viewing features are preserved.
+New application ID: installs separately from Peek with a fresh history.
+Swipe left to open History and right to return, with animated cards and Android predictive Back.
+
+Redesigned History with local thumbnails, date sections, and icon controls.
+Fix TikTok playback by retaining scoped temporary extraction cookies.

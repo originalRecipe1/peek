@@ -1,8 +1,67 @@
 # Release automation and F-Droid
 
-Peek separates extractor updates from runtime behavior. The app never downloads
+Unfurlit separates extractor updates from runtime behavior. The app never downloads
 new executable code. Instead, GitHub Actions checks for a new stable yt-dlp
 release every Monday at 04:23 UTC.
+
+## Version numbering
+
+The first public Unfurlit release is **1.0.0**, Android `versionCode` **7**.
+The earlier `0.1.0-experiment.N` names are retired. Build 6 was an unreleased
+preview under the old application ID. The new ID installs separately from
+both that preview and published build 5; existing history is not transferred.
+
+Use three-part release names:
+
+- Patch: fixes and extractor updates (`1.0.0` → `1.0.1`).
+- Minor: new features (`1.0.1` → `1.1.0`).
+- Major: a major product or compatibility release (`1.1.0` → `2.0.0`).
+
+Increment `versionCode` independently for every release; never reset it when
+changing the major or minor version. Git tags use `v1.0.0`, APK assets use
+`Unfurlit-1.0.0.apk`, and store release notes use the build code (`7.txt`).
+Local side-by-side builds append `-preview`; this is not part of the release tag.
+
+The extractor updater increments only the patch and build code and creates
+release notes for that build. Its tests run in Android CI. Manually prepared
+app releases also update the F-Droid submission candidate to the new version.
+
+## Unfurlit rebrand submission
+
+The existing [F-Droid merge request !47809](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/47809)
+is open on `originalRecipe1/fdroiddata:org.peek.app`. Its current recipe and
+successful pipeline still reference the Peek v5 release documented below.
+
+The prepared replacement is [`fdroid/io.github.originalrecipe1.unfurlit.yml`](fdroid/io.github.originalrecipe1.unfurlit.yml).
+It targets Unfurlit `1.0.0`, version code 7, and the new
+`Unfurlit-%v.apk` release filename. Its new application ID is
+`io.github.originalrecipe1.unfurlit`; the signing certificate, repository URLs,
+extractor version, and source-build properties are retained.
+This file is a submission candidate, not evidence of publication: its new tag
+and signed binary must exist before it is applied to the live merge request.
+
+After the reviewed rebrand reaches `main`:
+
+1. Run the **Publish release tag** workflow and verify the signed
+   `Unfurlit-1.0.0.apk` asset on `v1.0.0`.
+2. On the existing fork branch `org.peek.app`, remove the old
+   `metadata/org.peek.app.yml` and add the candidate as
+   `metadata/io.github.originalrecipe1.unfurlit.yml`. Keep the same MR and branch;
+   the metadata filename must match the new application ID. Resolve `v1.0.0`
+   to its full commit hash for the final recipe.
+3. Run F-Droid metadata lint, source scanning, and the reproducible build check
+   against the signed release. The previous v5 results do not validate 1.0.0.
+4. Push that branch and rename the existing MR to **New app: Unfurlit**. Keep
+   its checklist accurate for the new release and explain that the package
+   changed before initial F-Droid publication. There is no need for a second MR.
+
+Store title, description, icon, and screenshots are imported from the release's
+`fastlane/metadata/android/en-US` directory. Changing only `AutoName` would not
+replace the old APK branding or its screenshots. See F-Droid's
+[metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) and
+[graphics documentation](https://f-droid.org/docs/All_About_Descriptions_Graphics_and_Screenshots/).
+
+The recipe below is retained as the historical, verified **Peek v5** baseline.
 
 ## Weekly yt-dlp updates
 
@@ -13,8 +72,8 @@ release every Monday at 04:23 UTC.
 3. Rejects unexpected version formats, checksum mismatches, changed immutable
    releases, and version downgrades.
 4. Updates the pinned engine version and checksum, advances the yt-dlp source
-   submodule to the same release, and increments Peek's literal `versionCode`
-   and `versionName`.
+   submodule to the same release, and increments Unfurlit's literal `versionCode`
+   and the patch component of `versionName`.
 5. Runs unit tests, Android lint, and APK builds, then verifies both the official
    release asset and the locally source-built yt-dlp file embedded in debug APKs.
 6. Opens a pull request for review. It never merges the update itself.
@@ -57,9 +116,9 @@ byte-for-byte match for a tagged release.
 
 ## F-Droid auto-update configuration
 
-Official F-Droid metadata does not live in this repository. Once Peek has been
-accepted, the authoritative `metadata/org.peek.app.yml` in `fdroiddata` should
-include the following build block for the current submission release:
+Official F-Droid metadata does not live in this repository. The existing
+submission's `metadata/org.peek.app.yml` in `fdroiddata` uses the following
+verified build block for the previous Peek v5 release:
 
 ```yaml
 AntiFeatures:
@@ -130,9 +189,8 @@ rejects checksum or version mismatches. The youtubedl-android runtime is resolve
 from Maven Central, a trusted Maven repository; it contains the native Python and
 QuickJS runtimes documented in `THIRD_PARTY_NOTICES.md`.
 
-The repository is public, the first reviewed release is tagged, and this block
-has been validated with the current `fdroidserver`. The remaining initial step is
-to submit it to `fdroiddata`. Do not claim that official F-Droid publication is
+The repository is public, the first reviewed release is tagged, and the v5 block
+was submitted to `fdroiddata` in merge request !47809. Do not claim that official F-Droid publication is
 active until that merge request has been accepted. GitHub Actions cannot publish
 directly into the official repository; F-Droid detects tags and controls its own
 build and signing queue.

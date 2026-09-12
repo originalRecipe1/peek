@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Peek"
+rootProject.name = "Unfurlit"
 include(":app")

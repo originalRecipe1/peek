@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 40
 
     steps:
-      - name: Check out Peek
+      - name: Check out Unfurlit
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Java 21
@@ -32,6 +32,9 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Test release version updates
+        run: python3 -m unittest discover -s scripts/tests
 
       - name: Verify the Android project
         run: >-
@@ -44,7 +47,7 @@ jobs:
     timeout-minutes: 35
 
     steps:
-      - name: Check out Peek
+      - name: Check out Unfurlit
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Java 21

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Peek</string>
+    <string name="app_name">Unfurlit</string>
+    <string name="home_eyebrow">MEDIA FROM A LINK</string>
+    <string name="home_title">Ready when\nyou are.</string>
+    <string name="home_description">Paste a link to open its media.</string>
 </resources>

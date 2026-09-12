@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Update Peek's pinned yt-dlp release and advance the app release version."""
+"""Update Unfurlit's pinned yt-dlp release and advance the app release version."""
 
 from __future__ import annotations
 
@@ -68,13 +68,19 @@ def main() -> None:
         raise RuntimeError("Could not find literal Android app version fields")
     current_code = int(code_match.group(1))
     current_name = name_match.group(1)
-    expected_suffix = f".{current_code}"
-    if not current_name.endswith(expected_suffix):
-        raise RuntimeError(
-            f"Expected versionName {current_name!r} to end with versionCode {current_code}",
-        )
+    app_version = re.fullmatch(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", current_name)
+    if app_version is None:
+        raise RuntimeError(f"Expected a stable major.minor.patch app version, got {current_name!r}")
+    major, minor, patch = map(int, app_version.groups())
     next_code = current_code + 1
-    next_name = current_name.removesuffix(expected_suffix) + f".{next_code}"
+    next_name = f"{major}.{minor}.{patch + 1}"
+
+    readme = README_FILE.read_text(encoding="utf-8")
+    if current_version not in readme:
+        raise RuntimeError("README does not mention the currently pinned yt-dlp version")
+    changelog = ROOT / "fastlane/metadata/android/en-US/changelogs" / f"{next_code}.txt"
+    if changelog.exists():
+        raise RuntimeError(f"Release notes already exist for build {next_code}")
 
     replace_once(
         VERSION_FILE,
@@ -93,10 +99,10 @@ def main() -> None:
         rf'\g<1>versionName = "{next_name}"',
     )
 
-    readme = README_FILE.read_text(encoding="utf-8")
-    if current_version not in readme:
-        raise RuntimeError("README does not mention the currently pinned yt-dlp version")
     README_FILE.write_text(readme.replace(current_version, new_version), encoding="utf-8")
+
+    changelog.parent.mkdir(parents=True, exist_ok=True)
+    changelog.write_text(f"Update the media extractor to yt-dlp {new_version}.\n", encoding="utf-8")
 
     print(
         f"Updated yt-dlp {current_version} -> {new_version}; "

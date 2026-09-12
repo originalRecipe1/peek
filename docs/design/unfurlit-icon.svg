@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 108 108">
+  <title>Unfurlit folded-window icon</title>
+  <rect width="108" height="108" rx="28" fill="#DBE5FF"/>
+  <g transform="translate(8.1 8.1) scale(.85)" fill="#243E73">
+    <path opacity=".65" d="M27 33Q27 27 33 29L51 37V79L31 69Q27 67 27 62Z"/>
+    <path fill-rule="evenodd" d="M57 38L78 29Q83 27 83 33V62Q83 67 79 69L57 80Z M65 44L65 58L76 51Z"/>
+  </g>
+</svg>

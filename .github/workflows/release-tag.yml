@@ -70,8 +70,8 @@ jobs:
           source_file="$PWD/build/yt-dlp-source/yt-dlp"
           source_sha="$(sha256sum "$source_file" | awk '{ print $1 }')"
           ./gradlew --no-daemon testDebugUnitTest lintDebug assembleRelease \
-            -Ppeek.ytdlp.file="$source_file" \
-            -Ppeek.ytdlp.sha256="$source_sha"
+            -Punfurlit.ytdlp.file="$source_file" \
+            -Punfurlit.ytdlp.sha256="$source_sha"
 
       - name: Sign the release APK
         if: steps.version.outputs.create == 'true'
@@ -100,12 +100,12 @@ jobs:
 
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;34.0.0"
-          signing_dir="$RUNNER_TEMP/peek-signing"
+          signing_dir="$RUNNER_TEMP/unfurlit-signing"
           mkdir -p "$signing_dir"
           keystore_file="$signing_dir/release.keystore"
           unsigned_apk="$PWD/app/build/outputs/apk/release/app-release-unsigned.apk"
-          aligned_apk="$signing_dir/Peek-$VERSION_NAME-aligned.apk"
-          signed_apk="$signing_dir/Peek-$VERSION_NAME.apk"
+          aligned_apk="$signing_dir/Unfurlit-$VERSION_NAME-aligned.apk"
+          signed_apk="$signing_dir/Unfurlit-$VERSION_NAME.apk"
           printf '%s' "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$keystore_file"
 
           "$ANDROID_HOME/build-tools/34.0.0/zipalign" -p -f 4 "$unsigned_apk" "$aligned_apk"
@@ -141,7 +141,7 @@ jobs:
           fi
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
-            --title "Peek $VERSION_NAME" \
+            --title "Unfurlit $VERSION_NAME" \
             --generate-notes \
             "$SIGNED_APK" \
             "$SIGNED_CHECKSUM" \
