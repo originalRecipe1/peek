@@ -13,7 +13,11 @@ Validated locally on September 12, 2026, against the published release.
 
 ## Results
 
-- Metadata lint passed; `rewritemeta --list` reported no formatting changes.
+- Metadata lint passed. After GitLab reported a YAML wrapping difference, the
+  candidate was normalized again with fdroidserver commit
+  `6416542655477ad44adbc59878e8e302366d3803` (the CI revision) and ruamel.yaml
+  0.18.6. Lint and `rewritemeta --list` then passed. Preserve the generated
+  wrapping and the final newline when copying the file into GitLab.
 - The source scan within `fdroid build` passed without scanner exceptions.
 - The source build succeeded from the pinned commit, including the yt-dlp submodule.
 - F-Droid successfully copied and verified the published APK's signatures against

@@ -12,7 +12,8 @@ AutoName: Unfurlit
 
 RepoType: git
 Repo: https://github.com/originalRecipe1/unfurlit.git
-Binaries: https://github.com/originalRecipe1/unfurlit/releases/download/v%v/Unfurlit-%v.apk
+Binaries: 
+  https://github.com/originalRecipe1/unfurlit/releases/download/v%v/Unfurlit-%v.apk
 
 Builds:
   - versionName: 1.0.0
