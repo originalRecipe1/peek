@@ -9,7 +9,7 @@ Paste a link or share it to Unfurlit to open its media.
 | :---: | :---: | :---: | :---: |
 | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="180" alt="Unfurlit home screen with a link field and Paste and Open buttons"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="180" alt="A video playing in Unfurlit with its title and creator"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="180" alt="History with a thumbnail, media details, and removal controls"> | <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="180" alt="Unfurlit home screen in dark mode"> |
 
-## What you can do
+## Features
 
 - Open public links from **YouTube, Instagram, TikTok, Reddit, X/Twitter, PeerTube**, and more.
 - Watch fullscreen, seek through videos and audio, zoom into photos, and swipe through galleries.
