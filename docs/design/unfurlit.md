@@ -103,6 +103,11 @@ exploration board, not a specification of app behavior or a release screenshot.
   modes and at 150% font size.
   The four store screenshots show the actual app: light home, playback,
   history, and dark home. The existing film attribution is retained.
+- With the new application ID, all 17 UI tests and live TikTok playback
+  passed on the emulator. The new Pixel preview installed and launched while
+  both old applications remained installed. Its live media requests timed out
+  before extraction on the initial attempt and retry; phone playback under
+  this new ID is not yet confirmed.
 - The prepared F-Droid recipe passed `fdroid lint` and `fdroid rewritemeta`
   using official F-Droid category/anti-feature definitions. Full F-Droid source
   scanning and signed-binary reproducibility verification await the new release.
