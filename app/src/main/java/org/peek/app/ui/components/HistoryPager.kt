@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-/** History is the page to the left; Android retains ownership of screen-edge gestures. */
+/** History is the page to the right; Android retains ownership of screen-edge gestures. */
 @Composable
 fun HistoryPager(
     historyVisible: Boolean,
@@ -68,8 +68,8 @@ fun HistoryPager(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer),
         // Keep Home's typed link and scroll position while looking at History.
         beyondViewportPageCount = 1,
-        // In-app paging always puts History to the left. System Back follows its chosen edge.
-        reverseLayout = rightToLeftLayout xor (predictingBack && backFromLeft),
+        // In-app paging puts History to the right, matching its toolbar button. System Back follows its chosen edge.
+        reverseLayout = rightToLeftLayout xor (!predictingBack || backFromLeft),
         userScrollEnabled = !predictingBack && (allowOpenSwipe || historyVisible),
         flingBehavior = PagerDefaults.flingBehavior(pager, snapPositionalThreshold = 0.12f),
         pageSpacing = 12.dp,

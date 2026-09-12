@@ -12,8 +12,8 @@ system edge navigation:
   describes the system's use of screen edges. This implementation does not
   request gesture-exclusion areas or replace the system Back gesture on Home.
 
-History is the page to the left of Home. An in-content right swipe opens it;
-a left swipe returns. Pager position drives a subtle scale, rounded-corner,
+History is the page to the right of Home, matching the History toolbar button.
+An in-content left swipe opens it; a right swipe returns. Pager position drives a subtle scale, rounded-corner,
 and shadow treatment, so the pages move during the drag. The existing History
 and Back buttons animate between the same pages.
 

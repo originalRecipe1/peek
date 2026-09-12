@@ -128,8 +128,8 @@ monitor. Repository setup and the proposed F-Droid build metadata are documented
 
 ## Viewing history
 
-Swipe right within Home, or tap **History** on Home or the viewer, to see prior
-viewing events. Swipe left in History to return; the pages follow your finger
+Swipe left within Home, or tap **History** on Home or the viewer, to see prior
+viewing events. Swipe right in History to return; the pages follow your finger
 with a card transition. Android's edge Back gesture also previews the return
 and can be cancelled. A link typed on Home is retained while visiting History.
 Opening an entry extracts

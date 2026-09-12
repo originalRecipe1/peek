@@ -1,6 +1,7 @@
 package org.peek.app
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -24,37 +25,38 @@ class MainActivityTest {
     fun coldLaunchStaysOnTheIdleHomeScreen() {
         composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onNodeWithText("Extracting stream information…").assertDoesNotExist()
-        composeRule.onNodeWithText("Big Buck Bunny", substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("Big Buck Bunny", substring = true).assertIsNotDisplayed()
     }
 
     @Test
-    fun rightSwipeNavigatesFromHomeToHistory() {
+    fun leftSwipeNavigatesFromHomeToHistory() {
         composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onRoot().performTouchInput {
-            swipe(Offset(width * 0.2f, height * 0.8f), Offset(width * 0.8f, height * 0.8f))
+            swipe(Offset(width * 0.8f, height * 0.8f), Offset(width * 0.2f, height * 0.8f))
         }
         composeRule.onNodeWithText("History").assertIsDisplayed()
     }
 
     @Test
-    fun shortRightSwipeAcrossTheTopBarOpensHistory() {
-        val start = composeRule.onNodeWithText("Unfurlit").fetchSemanticsNode().boundsInRoot.center
+    fun shortLeftSwipeAcrossTheTopBarOpensHistory() {
+        val title = composeRule.onNodeWithText("Unfurlit").fetchSemanticsNode().boundsInRoot
+        val start = Offset(composeRule.onRoot().fetchSemanticsNode().boundsInRoot.center.x, title.center.y)
         val distance = 64f * composeRule.activity.resources.displayMetrics.density
         composeRule.onRoot().performTouchInput {
-            swipe(start, start + Offset(distance, 0f))
+            swipe(start, start + Offset(-distance, 0f))
         }
         composeRule.onNodeWithText("History").assertIsDisplayed()
     }
 
     @Test
-    fun shortDiagonalRightSwipeOpensHistoryWhenHomeFitsOnScreen() {
+    fun shortDiagonalLeftSwipeOpensHistoryWhenHomeFitsOnScreen() {
         val density = composeRule.activity.resources.displayMetrics.density
         composeRule.onRoot().performTouchInput {
-            val start = Offset(width * 0.3f, height * 0.8f)
+            val start = Offset(width * 0.7f, height * 0.8f)
             down(start)
-            // A thumb can initially drift vertically before moving right.
-            moveTo(start + Offset(3f, 24f) * density, delayMillis = 80)
-            moveTo(start + Offset(68f, 30f) * density, delayMillis = 160)
+            // A thumb can initially drift vertically before moving left.
+            moveTo(start + Offset(-3f, 24f) * density, delayMillis = 80)
+            moveTo(start + Offset(-68f, 30f) * density, delayMillis = 160)
             up()
         }
         composeRule.onNodeWithText("History").assertIsDisplayed()
@@ -70,7 +72,7 @@ class MainActivityTest {
         composeRule.onNodeWithContentDescription("Open history").performClick()
         composeRule.onNodeWithText("History").assertIsDisplayed()
         composeRule.onRoot().performTouchInput {
-            swipe(Offset(width * 0.8f, height * 0.8f), Offset(width * 0.2f, height * 0.8f))
+            swipe(Offset(width * 0.2f, height * 0.8f), Offset(width * 0.8f, height * 0.8f))
         }
         composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onNodeWithText("https://example.com/video").assertIsDisplayed()
@@ -89,8 +91,8 @@ class MainActivityTest {
     @Test
     fun pagesFollowTheFingerBeforeTheSwipeIsReleased() {
         composeRule.onRoot().performTouchInput {
-            down(Offset(width * 0.1f, height * 0.8f))
-            moveTo(Offset(width * 0.9f, height * 0.8f), delayMillis = 400)
+            down(Offset(width * 0.9f, height * 0.8f))
+            moveTo(Offset(width * 0.5f, height * 0.8f), delayMillis = 400)
         }
         composeRule.onNodeWithText("History").assertIsDisplayed()
         composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
