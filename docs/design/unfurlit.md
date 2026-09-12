@@ -35,8 +35,9 @@ ID and source namespace. This is a new installation, not an upgrade to
 `org.peek.app`. Old installations and their history remain intact; there is no
 history migration. Its private database is named `unfurlit-history.db`.
 
-The signing identity, extractor build compatibility aliases, and GitHub
-repository address remain stable. Existing media features are retained. Home
+The signing identity and extractor build compatibility aliases remain stable.
+The GitHub repository is now `originalRecipe1/unfurlit`. Existing media features
+are retained. Home
 supports animated Home/History paging and predictive Back; see
 [`history-navigation.md`](history-navigation.md). The release remains version
 1.0.0, build 7, since it has not been published.
@@ -64,8 +65,8 @@ The following references intentionally retain the old spelling:
 
 - `peek.ytdlp.*`: aliases accepted for older local build commands; current commands
   use `unfurlit.ytdlp.*`.
-- `github.com/originalRecipe1/peek`: the actual repository URL; the repository has
-  not been renamed. The existing GitLab submission branch also retains its app ID.
+- `org.peek.app`: the existing GitLab submission branch, pending the manual
+  metadata update described below.
 - Historical release notes, compatibility explanations, and old test observations.
 
 The existing GitLab MR title still needs the user's manual change to

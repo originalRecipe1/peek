@@ -124,7 +124,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C "$branch"
-          git add app/build.gradle.kts gradle/libs.versions.toml README.md third_party/yt-dlp fastlane/metadata/android/en-US/changelogs
+          git add app/build.gradle.kts gradle/libs.versions.toml docs/development.md third_party/yt-dlp fastlane/metadata/android/en-US/changelogs
           git commit -m "chore: update yt-dlp to $VERSION"
           git push --force origin "HEAD:refs/heads/$branch"
 

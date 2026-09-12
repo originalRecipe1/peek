@@ -13,11 +13,13 @@ spec.loader.exec_module(updater)
 class VersionUpdateTest(unittest.TestCase):
     def run_update(self, name="1.0.0", code=7, current="2026.08.19", new="2026.09.12", new_hash="b" * 64):
         root = Path(self.directory.name)
-        versions, build, readme = root / "versions.toml", root / "build.gradle.kts", root / "README.md"
+        versions, build, guide = root / "versions.toml", root / "build.gradle.kts", root / "docs/development.md"
+        guide.parent.mkdir(parents=True, exist_ok=True)
+        (root / "README.md").write_text("Unfurlit: open media from social links.\n")
         versions.write_text(f'ytDlpEngine = "{current}"\n')
         build.write_text(f'val ytDlpReleaseSha256 = "{"a" * 64}"\nversionCode = {code}\nversionName = "{name}"\n')
-        readme.write_text(f"Pinned extractor: {current}\n")
-        with patch.multiple(updater, ROOT=root, VERSION_FILE=versions, BUILD_FILE=build, README_FILE=readme), patch("sys.argv", ["update_yt_dlp.py", new, new_hash]):
+        guide.write_text(f"Pinned extractor: {current}\n")
+        with patch.multiple(updater, ROOT=root, VERSION_FILE=versions, BUILD_FILE=build, BUILD_GUIDE_FILE=guide), patch("sys.argv", ["update_yt_dlp.py", new, new_hash]):
             updater.main()
         return root, build.read_text()
 
@@ -29,7 +31,8 @@ class VersionUpdateTest(unittest.TestCase):
         root, build = self.run_update(name="1.2.9", code=37)
         self.assertIn('versionName = "1.2.10"', build)
         self.assertIn('versionCode = 38', build)
-        self.assertIn("2026.09.12", (root / "README.md").read_text())
+        self.assertIn("2026.09.12", (root / "docs/development.md").read_text())
+        self.assertEqual("Unfurlit: open media from social links.\n", (root / "README.md").read_text())
         self.assertTrue((root / "fastlane/metadata/android/en-US/changelogs/38.txt").is_file())
 
     def test_first_public_release_updates_to_first_patch(self):

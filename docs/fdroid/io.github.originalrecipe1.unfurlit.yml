@@ -5,14 +5,14 @@ Categories:
   - Internet
 License: GPL-3.0-only
 AuthorName: originalRecipe1
-SourceCode: https://github.com/originalRecipe1/peek
-IssueTracker: https://github.com/originalRecipe1/peek/issues
+SourceCode: https://github.com/originalRecipe1/unfurlit
+IssueTracker: https://github.com/originalRecipe1/unfurlit/issues
 
 AutoName: Unfurlit
 
 RepoType: git
-Repo: https://github.com/originalRecipe1/peek.git
-Binaries: https://github.com/originalRecipe1/peek/releases/download/v%v/Unfurlit-%v.apk
+Repo: https://github.com/originalRecipe1/unfurlit.git
+Binaries: https://github.com/originalRecipe1/unfurlit/releases/download/v%v/Unfurlit-%v.apk
 
 Builds:
   - versionName: 1.0.0

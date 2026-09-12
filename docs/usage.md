@@ -1,0 +1,81 @@
+# Using Unfurlit
+
+## Installation
+
+Unfurlit runs on Android 7.0 or newer on 64-bit ARM devices and x86_64 emulators.
+Install the APK attached to an **Unfurlit** release on
+[GitHub Releases](https://github.com/originalRecipe1/unfurlit/releases). If no
+Unfurlit release is listed yet, see the [build instructions](development.md#build).
+
+Older **Peek** releases use `org.peek.app`. Unfurlit uses
+`io.github.originalrecipe1.unfurlit`, so it installs separately and does not
+transfer the old app's history. The older app and its data remain intact.
+
+## Open media
+
+Paste a public link into Unfurlit and tap **Open**, share a link to it from
+another app, or select it from Android's **Open with** chooser where available.
+Opening the app alone does not start loading media.
+
+- Videos have playback and seeking controls, adapt to portrait or landscape
+  content, and support fullscreen. Back exits fullscreen first.
+- Photos support pinch-to-zoom and panning.
+- Audio has playback controls.
+- Posts with multiple extracted media items appear in a swipeable gallery.
+
+The first link can take longer while the bundled media extractor initializes.
+Unfurlit streams media rather than saving a permanent copy of the video or audio.
+
+## Sites and access
+
+Unfurlit opens public links from YouTube, Instagram, TikTok, Reddit, X/Twitter,
+PeerTube, and other sites supported by its extractor. Support varies by post,
+region, and platform changes; see the [compatibility results](experiment-results.md).
+
+Private, login-gated, age-restricted, or region-restricted posts may not open.
+Importing login cookies, choosing quality manually, and saving media are not
+currently available. Image and gallery support depends on what each site's
+extractor provides. Unfurlit focuses on the media; comments and threads are
+intentionally outside its scope.
+
+## Appearance
+
+Unfurlit follows the system light/dark setting. On Android 12 and newer it uses
+your personalized Material colors. Android 13 and newer can also theme the
+launcher icon.
+
+## History
+
+Swipe left within Home, or tap **History** on Home or the viewer, to see prior
+viewing events. Swipe right in History to return; the pages follow your finger
+with a card transition. Android's edge Back gesture also previews the return
+and can be cancelled. A link typed on Home is retained while visiting History.
+Opening an entry extracts
+the original page again so stale stream URLs are never reused. Individual events can
+be removed with their trash icon, and **Clear all** in the toolbar clears the
+entire history after confirmation. Visits appear in date groups with small
+thumbnails and media-type icons.
+
+History is stored in the app's private SQLite database and is excluded from Android
+backup and device transfer. A record contains the original page URL, basic display
+metadata, media type/count, duration, and viewing time. Direct CDN URLs, request
+headers, cookies, descriptions, and raw extractor output are not stored. Small
+thumbnail copies are saved locally after viewing when available; older entries
+and unavailable artwork use themed media icons. Thumbnails are removed with
+their entries, and browsing History makes no network requests.
+
+## Privacy and troubleshooting
+
+Extraction runs on your device. Unfurlit has no project-operated backend,
+analytics, or advertising. Opening media contacts the source platform and its
+media hosts, so those services can still see your IP address and request data.
+See the [privacy policy](../PRIVACY.md).
+
+If a link fails, retry it and check whether the original page is still publicly
+accessible. For persistent issues, include a public example link and the app
+and yt-dlp versions shown by the viewer in a
+[bug report](https://github.com/originalRecipe1/unfurlit/issues). Do not post private
+links, login cookies, or credentials. Report security concerns through the
+[security policy](../SECURITY.md).
+
+[All documentation](README.md)
