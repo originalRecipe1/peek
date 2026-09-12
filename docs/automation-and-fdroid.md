@@ -44,29 +44,11 @@ is published. The candidate pins its full commit,
 September 12, 2026; see [the validation record](fdroid/validation-1.0.0.md).
 Official F-Droid acceptance and publication are still pending.
 
-To update the existing GitLab submission manually:
-
-1. Open the fork branch `org.peek.app` in GitLab's Web IDE. Remove
-   `metadata/org.peek.app.yml` and add
-   `metadata/io.github.originalrecipe1.unfurlit.yml` using the complete contents of
-   [the candidate](fdroid/io.github.originalrecipe1.unfurlit.yml).
-2. Commit both changes to that same branch so they update MR !47809.
-3. Rename the MR to **New app: Unfurlit**, change its issue tracker link to
-   `https://github.com/originalRecipe1/unfurlit/issues`, and explain the name and
-   package change before initial F-Droid publication. A suggested update is in
-   [the validation record](fdroid/validation-1.0.0.md#suggested-mr-update).
-4. Wait for the new GitLab pipelines and resolve any findings. The checklist item
-   that says both the build and all pipelines pass must reflect the new pipeline
-   results; the earlier Peek v5 pipeline is not sufficient.
-
-
 Store title, description, icon, and screenshots are imported from the release's
 `fastlane/metadata/android/en-US` directory. Changing only `AutoName` would not
 replace the old APK branding or its screenshots. See F-Droid's
 [metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) and
 [graphics documentation](https://f-droid.org/docs/All_About_Descriptions_Graphics_and_Screenshots/).
-
-The recipe below is retained as the historical, verified **Peek v5** baseline.
 
 ## Weekly yt-dlp updates
 
