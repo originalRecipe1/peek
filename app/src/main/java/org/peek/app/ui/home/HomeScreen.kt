@@ -57,7 +57,8 @@ fun HomeScreen(
     var input by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val showHistory by rememberUpdatedState(onShowHistory)
-    val historySwipeThreshold = with(LocalDensity.current) { 80.dp.toPx() }
+    val historySwipeThreshold = with(LocalDensity.current) { 48.dp.toPx() }
+    val scrollState = rememberScrollState()
 
     fun submit() {
         val url = UrlTextParser.firstSupportedUrl(input)
@@ -70,6 +71,19 @@ fun HomeScreen(
     }
 
     Scaffold(
+        modifier = Modifier
+            .pointerInput(historySwipeThreshold) {
+                var horizontalDistance = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { horizontalDistance = 0f },
+                    onHorizontalDrag = { _, amount -> horizontalDistance += amount },
+                    onDragEnd = {
+                        if (horizontalDistance >= historySwipeThreshold) showHistory()
+                        horizontalDistance = 0f
+                    },
+                    onDragCancel = { horizontalDistance = 0f },
+                )
+            },
         topBar = {
             PeekTopAppBar(onShowHistory = onShowHistory)
         },
@@ -78,19 +92,7 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(contentPadding)
                 .fillMaxSize()
-                .pointerInput(historySwipeThreshold) {
-                    var horizontalDistance = 0f
-                    detectHorizontalDragGestures(
-                        onDragStart = { horizontalDistance = 0f },
-                        onHorizontalDrag = { _, amount -> horizontalDistance += amount },
-                        onDragEnd = {
-                            if (horizontalDistance >= historySwipeThreshold) showHistory()
-                            horizontalDistance = 0f
-                        },
-                        onDragCancel = { horizontalDistance = 0f },
-                    )
-                }
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState, enabled = scrollState.maxValue > 0)
                 .imePadding()
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

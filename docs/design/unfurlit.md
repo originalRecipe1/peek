@@ -49,9 +49,11 @@ exploration board, not a specification of app behavior or a release screenshot.
 
 ## Validation on September 12, 2026
 
-- 37 unit tests and 8 UI instrumentation tests passed; UI tests ran on an
+- 37 unit tests and 11 UI instrumentation tests passed; UI tests ran on an
   Android 16 / API 36 emulator. Gesture tests cover a right swipe, ignored
-  left/vertical/short drags, and cancellation.
+  left/vertical/tiny drags, cancellation, and real navigation for short
+  top-bar and diagonal swipes. The latter two regression tests failed against
+  the previous APK pulled from the Pixel and pass against the corrected build.
 - Debug APK, test APK, Android lint, and the offline source-extractor release
   build passed. Lint reports dependency-update notices; the monochrome icon
   warning has been resolved.
