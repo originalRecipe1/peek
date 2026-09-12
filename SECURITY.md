@@ -1,6 +1,6 @@
 # Security policy
 
-Peek processes untrusted URLs and extractor output, and its bundled extraction
+Unfurlit processes untrusted URLs and extractor output, and its bundled extraction
 engine changes frequently. Supported releases should use the newest app version
 available from the project or F-Droid.
 

@@ -104,8 +104,8 @@ jobs:
           mkdir -p "$signing_dir"
           keystore_file="$signing_dir/release.keystore"
           unsigned_apk="$PWD/app/build/outputs/apk/release/app-release-unsigned.apk"
-          aligned_apk="$signing_dir/Peek-$VERSION_NAME-aligned.apk"
-          signed_apk="$signing_dir/Peek-$VERSION_NAME.apk"
+          aligned_apk="$signing_dir/Unfurlit-$VERSION_NAME-aligned.apk"
+          signed_apk="$signing_dir/Unfurlit-$VERSION_NAME.apk"
           printf '%s' "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$keystore_file"
 
           "$ANDROID_HOME/build-tools/34.0.0/zipalign" -p -f 4 "$unsigned_apk" "$aligned_apk"
@@ -141,7 +141,7 @@ jobs:
           fi
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
-            --title "Peek $VERSION_NAME" \
+            --title "Unfurlit $VERSION_NAME" \
             --generate-notes \
             "$SIGNED_APK" \
             "$SIGNED_CHECKSUM" \

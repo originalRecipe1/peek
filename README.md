@@ -1,6 +1,12 @@
-# Peek
+# Unfurlit
 
-Peek is an experimental, FOSS-first Android media viewer for social-media links. This repository currently implements the core local streaming path:
+Unfurlit was previously named Peek. The Android application ID remains
+`org.peek.app` so existing installations and viewing history can be upgraded.
+The interface follows Android's personalized Material colors on Android 12+
+and the system light/dark appearance. The folded-window icon also has an
+Android 13+ monochrome variant for themed launchers.
+
+Unfurlit is an experimental, FOSS-first Android media viewer for social-media links. This repository currently implements the core local streaming path:
 
 ```text
 paste / Share / Open With -> local yt-dlp extraction -> structured domain model
@@ -55,7 +61,7 @@ Compose tests with `./gradlew connectedDebugAndroidTest`. CI runs the same tests
 on an AOSP API 30 Gradle-managed device. Live extraction tests remain manual so
 platform rate limits and datacenter blocking cannot make pull requests flaky.
 
-For Android Studio, select the shared **Peek** run configuration, choose one or
+For Android Studio, select the shared **Unfurlit** run configuration, choose one or
 more connected devices from the target-device selector, and press **Run**. The
 configuration launches the default activity and does not clear app data.
 
@@ -82,16 +88,16 @@ the supplied archive's checksum and embedded version before packaging it. The
 source-built variant has also completed the YouTube streaming proof of concept
 on the emulator.
 
-Before the first extraction in each app process, Peek verifies the app-private
+Before the first extraction in each app process, Unfurlit verifies the app-private
 extractor copy against the bundled checksum and atomically refreshes it when it
 differs. This makes APK upgrades activate their newly pinned yt-dlp version
 without clearing app data or viewing history.
 
-The first extraction can take noticeably longer while the bundled Python runtime initializes. Network behavior is limited to the submitted source platform/CDN; there is no Peek backend.
+The first extraction can take noticeably longer while the bundled Python runtime initializes. Network behavior is limited to the submitted source platform/CDN; there is no Unfurlit backend.
 
 ## Network safety
 
-Peek treats submitted URLs and extractor output as untrusted. Before extraction,
+Unfurlit treats submitted URLs and extractor output as untrusted. Before extraction,
 it upgrades HTTP inputs to HTTPS, follows a bounded redirect chain without
 reading response bodies, rejects cleartext redirects and extracted media URLs, and
 rejects any hop that targets localhost, a literal private address, or a hostname
@@ -102,7 +108,7 @@ origins, and extractor-provided connection, forwarding, host, length, and range
 headers are ignored.
 
 Extraction is cancellable and limited to 120 seconds. yt-dlp prints only the
-metadata and selected-format fields Peek consumes; short metadata is capped at
+metadata and selected-format fields Unfurlit consumes; short metadata is capped at
 512 characters, descriptions at 16 KiB, the normalized output at 2 MiB, and
 posts at 50 media entries. These controls reduce the attack surface, but they do
 not turn arbitrary extraction into a sandbox: yt-dlp and the bundled Python
@@ -133,7 +139,7 @@ headers, cookies, descriptions, thumbnails, and raw extractor output are not sto
 
 ## Manual experiment
 
-1. Install the debug APK and launch Peek.
+1. Install the debug APK and launch Unfurlit.
 2. Paste a public URL, or share/open one from another app.
 3. Wait for extraction to complete and verify that the native media viewer appears.
 4. Confirm playback/seeking for video and audio, zoom/pan for images, swiping and the item indicator for galleries, and the new history event.
@@ -141,7 +147,7 @@ headers, cookies, descriptions, thumbnails, and raw extractor output are not sto
 6. Capture whether each result is progressive, HLS/DASH, muxed, or split audio/video.
 7. Record extraction time, playback errors, and the produced APK size before expanding the UI.
 
-Do not use private links, cookies, or credentials in committed test fixtures. Peek's own success log records only the extractor name and media count. Failures emit a length-limited diagnostic with URLs and common secret fields redacted; direct media URLs, headers, cookies, and raw yt-dlp output are never deliberately logged.
+Do not use private links, cookies, or credentials in committed test fixtures. Unfurlit's own success log records only the extractor name and media count. Failures emit a length-limited diagnostic with URLs and common secret fields redacted; direct media URLs, headers, cookies, and raw yt-dlp output are never deliberately logged.
 
 ## Architecture
 

@@ -1,6 +1,9 @@
 package org.peek.app.ui.components
 
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -9,7 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.peek.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,14 +26,27 @@ fun PeekTopAppBar(
     onShowHistory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    CenterAlignedTopAppBar(
+    TopAppBar(
         modifier = modifier,
         title = {
-            Text(
-                text = "Peek",
-                maxLines = 1,
-                style = MaterialTheme.typography.titleLarge,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_unfurlit),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp),
+                )
+                Text(
+                    text = stringResource(R.string.app_name),
+                    maxLines = 1,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = (-0.5).sp,
+                )
+            }
         },
         actions = {
             IconButton(onClick = onShowHistory) {
@@ -36,7 +57,7 @@ fun PeekTopAppBar(
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
     )
 }

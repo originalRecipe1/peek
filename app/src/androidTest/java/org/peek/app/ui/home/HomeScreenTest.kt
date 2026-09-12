@@ -30,7 +30,7 @@ class HomeScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("Open social media").assertIsDisplayed()
+        composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onNodeWithText("Open").assertIsNotEnabled()
         composeRule.onNode(hasSetTextAction()).performTextInput(
             "A message with https://example.com/media?item=1 inside",

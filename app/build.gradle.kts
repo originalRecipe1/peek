@@ -52,7 +52,7 @@ abstract class PreparePinnedYtDlp : DefaultTask() {
             ).toURL().openConnection().apply {
                 connectTimeout = 30_000
                 readTimeout = 60_000
-                setRequestProperty("User-Agent", "Peek-Android-build/$version")
+                setRequestProperty("User-Agent", "Unfurlit-Android-build/$version")
             }.getInputStream()
             inputStream.buffered().use { input ->
                 Files.newOutputStream(temporary).buffered().use { output ->
@@ -124,8 +124,8 @@ android {
         applicationId = "org.peek.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.1.0-experiment.5"
+        versionCode = 6
+        versionName = "0.1.0-experiment.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(

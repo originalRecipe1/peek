@@ -1,8 +1,41 @@
 # Release automation and F-Droid
 
-Peek separates extractor updates from runtime behavior. The app never downloads
+Unfurlit separates extractor updates from runtime behavior. The app never downloads
 new executable code. Instead, GitHub Actions checks for a new stable yt-dlp
 release every Monday at 04:23 UTC.
+
+## Unfurlit rebrand submission
+
+The existing [F-Droid merge request !47809](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/47809)
+is open on `originalRecipe1/fdroiddata:org.peek.app`. Its current recipe and
+successful pipeline still reference the Peek v5 release documented below.
+
+The prepared replacement is [`fdroid/org.peek.app.yml`](fdroid/org.peek.app.yml).
+It targets Unfurlit `0.1.0-experiment.6`, version code 6, and the new
+`Unfurlit-%v.apk` release filename. The application ID, signing certificate,
+repository URLs, extractor version, and source-build properties are retained.
+This file is a submission candidate, not evidence of publication: its new tag
+and signed binary must exist before it is applied to the live merge request.
+
+After the reviewed rebrand reaches `main`:
+
+1. Run the **Publish release tag** workflow and verify the signed
+   `Unfurlit-0.1.0-experiment.6.apk` asset on `v0.1.0-experiment.6`.
+2. Copy the candidate into the existing fork's `metadata/org.peek.app.yml` on
+   branch `org.peek.app`. Resolve the release tag to its full commit hash for
+   the final recipe, as in the existing submission.
+3. Run F-Droid metadata lint, source scanning, and the reproducible build check
+   against the signed release. The previous v5 results do not validate v6.
+4. Push that branch and rename the existing MR to **New app: Unfurlit**. Keep
+   its checklist accurate for the new release. There is no need for a second MR.
+
+Store title, description, icon, and screenshots are imported from the release's
+`fastlane/metadata/android/en-US` directory. Changing only `AutoName` would not
+replace the old APK branding or its screenshots. See F-Droid's
+[metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) and
+[graphics documentation](https://f-droid.org/docs/All_About_Descriptions_Graphics_and_Screenshots/).
+
+The recipe below is retained as the historical, verified **Peek v5** baseline.
 
 ## Weekly yt-dlp updates
 
@@ -13,7 +46,7 @@ release every Monday at 04:23 UTC.
 3. Rejects unexpected version formats, checksum mismatches, changed immutable
    releases, and version downgrades.
 4. Updates the pinned engine version and checksum, advances the yt-dlp source
-   submodule to the same release, and increments Peek's literal `versionCode`
+   submodule to the same release, and increments Unfurlit's literal `versionCode`
    and `versionName`.
 5. Runs unit tests, Android lint, and APK builds, then verifies both the official
    release asset and the locally source-built yt-dlp file embedded in debug APKs.
@@ -57,9 +90,9 @@ byte-for-byte match for a tagged release.
 
 ## F-Droid auto-update configuration
 
-Official F-Droid metadata does not live in this repository. Once Peek has been
-accepted, the authoritative `metadata/org.peek.app.yml` in `fdroiddata` should
-include the following build block for the current submission release:
+Official F-Droid metadata does not live in this repository. The existing
+submission's `metadata/org.peek.app.yml` in `fdroiddata` uses the following
+verified build block for the previous Peek v5 release:
 
 ```yaml
 AntiFeatures:
@@ -130,9 +163,8 @@ rejects checksum or version mismatches. The youtubedl-android runtime is resolve
 from Maven Central, a trusted Maven repository; it contains the native Python and
 QuickJS runtimes documented in `THIRD_PARTY_NOTICES.md`.
 
-The repository is public, the first reviewed release is tagged, and this block
-has been validated with the current `fdroidserver`. The remaining initial step is
-to submit it to `fdroiddata`. Do not claim that official F-Droid publication is
+The repository is public, the first reviewed release is tagged, and the v5 block
+was submitted to `fdroiddata` in merge request !47809. Do not claim that official F-Droid publication is
 active until that merge request has been accepted. GitHub Actions cannot publish
 directly into the official repository; F-Droid detects tags and controls its own
 build and signing queue.

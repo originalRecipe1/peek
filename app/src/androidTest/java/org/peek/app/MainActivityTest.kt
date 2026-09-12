@@ -12,7 +12,7 @@ class MainActivityTest {
 
     @Test
     fun coldLaunchStaysOnTheIdleHomeScreen() {
-        composeRule.onNodeWithText("Open social media").assertIsDisplayed()
+        composeRule.onNodeWithText("Ready when\nyou are.").assertIsDisplayed()
         composeRule.onNodeWithText("Extracting stream information…").assertDoesNotExist()
         composeRule.onNodeWithText("Big Buck Bunny", substring = true).assertDoesNotExist()
     }

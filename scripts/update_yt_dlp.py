@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Update Peek's pinned yt-dlp release and advance the app release version."""
+"""Update Unfurlit's pinned yt-dlp release and advance the app release version."""
 
 from __future__ import annotations
 

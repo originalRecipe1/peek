@@ -1,0 +1,2 @@
+Peek is now Unfurlit, with a folded-window icon and refreshed home screen.
+Personalized Material colors, media viewing features, and existing viewing history are preserved.

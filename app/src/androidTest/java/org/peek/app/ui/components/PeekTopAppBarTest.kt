@@ -23,7 +23,7 @@ class PeekTopAppBarTest {
             }
         }
 
-        composeRule.onNodeWithText("Peek").assertIsDisplayed()
+        composeRule.onNodeWithText("Unfurlit").assertIsDisplayed()
         composeRule.onNodeWithText("Home").assertDoesNotExist()
         composeRule.onNodeWithText("Streaming experiment").assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Open history").performClick()
