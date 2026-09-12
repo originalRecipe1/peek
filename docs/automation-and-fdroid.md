@@ -38,31 +38,17 @@ It targets Unfurlit `1.0.0`, version code 7, and the new
 `io.github.originalrecipe1.unfurlit`, and its repository and release URLs point to
 `originalRecipe1/unfurlit`. The signing certificate, extractor version, and
 source-build properties are retained.
-This file is a submission candidate, not evidence of publication: its new tag
-and signed binary must exist before it is applied to the live merge request.
-
-After the reviewed rebrand reaches `main`:
-
-1. Run the **Publish release tag** workflow and verify the signed
-   `Unfurlit-1.0.0.apk` asset on `v1.0.0`.
-2. On the existing fork branch `org.peek.app`, remove the old
-   `metadata/org.peek.app.yml` and add the candidate as
-   `metadata/io.github.originalrecipe1.unfurlit.yml`. Keep the same MR and branch;
-   the metadata filename must match the new application ID. Resolve `v1.0.0`
-   to its full commit hash for the final recipe.
-3. Run F-Droid metadata lint, source scanning, and the reproducible build check
-   against the signed release. The previous v5 results do not validate 1.0.0.
-4. Push that branch and rename the existing MR to **New app: Unfurlit**. Keep
-   its checklist accurate for the new release and explain that the package
-   changed before initial F-Droid publication. There is no need for a second MR.
+The signed [1.0.0 release](https://github.com/originalRecipe1/unfurlit/releases/tag/v1.0.0)
+is published. The candidate pins its full commit,
+`80f79dd1328775d57c19c99d6592f54e552e8440`, and passed local validation on
+September 12, 2026; see [the validation record](fdroid/validation-1.0.0.md).
+Official F-Droid acceptance and publication are still pending.
 
 Store title, description, icon, and screenshots are imported from the release's
 `fastlane/metadata/android/en-US` directory. Changing only `AutoName` would not
 replace the old APK branding or its screenshots. See F-Droid's
 [metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) and
 [graphics documentation](https://f-droid.org/docs/All_About_Descriptions_Graphics_and_Screenshots/).
-
-The recipe below is retained as the historical, verified **Peek v5** baseline.
 
 ## Weekly yt-dlp updates
 
