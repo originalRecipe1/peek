@@ -22,7 +22,7 @@ import org.peek.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PeekTopAppBar(
+fun UnfurlitTopAppBar(
     onShowHistory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

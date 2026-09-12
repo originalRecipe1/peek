@@ -48,6 +48,6 @@ class UrlPreflight(
     }
 
     private companion object {
-        const val USER_AGENT = "Peek URL safety preflight"
+        const val USER_AGENT = "Unfurlit URL safety preflight"
     }
 }

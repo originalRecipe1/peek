@@ -33,6 +33,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
 
+      - name: Test release version updates
+        run: python3 -m unittest discover -s scripts/tests
+
       - name: Verify the Android project
         run: >-
           ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug

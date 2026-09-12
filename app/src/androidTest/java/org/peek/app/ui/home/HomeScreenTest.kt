@@ -12,7 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.peek.app.ui.theme.PeekTheme
+import org.peek.app.ui.theme.UnfurlitTheme
 
 class HomeScreenTest {
     @get:Rule
@@ -22,7 +22,7 @@ class HomeScreenTest {
     fun startsIdleAndOpensTheFirstPublicUrl() {
         var openedUrl: String? = null
         composeRule.setContent {
-            PeekTheme {
+            UnfurlitTheme {
                 HomeScreen(
                     onOpen = { openedUrl = it },
                     onShowHistory = {},
@@ -46,7 +46,7 @@ class HomeScreenTest {
     fun reportsAnInvalidSchemeWithoutOpeningIt() {
         var opened = false
         composeRule.setContent {
-            PeekTheme {
+            UnfurlitTheme {
                 HomeScreen(
                     onOpen = { opened = true },
                     onShowHistory = {},
@@ -66,7 +66,7 @@ class HomeScreenTest {
     fun opensHistoryOnlyAfterTheUserRequestsIt() {
         var historyRequested = false
         composeRule.setContent {
-            PeekTheme {
+            UnfurlitTheme {
                 HomeScreen(
                     onOpen = {},
                     onShowHistory = { historyRequested = true },

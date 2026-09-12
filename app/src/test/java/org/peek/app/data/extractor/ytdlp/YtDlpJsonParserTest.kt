@@ -61,7 +61,7 @@ class YtDlpJsonParserTest {
             json = """
                 {
                   "title": "Split stream",
-                  "http_headers": {"User-Agent": "Peek test", "Referer": "https://common/"},
+                  "http_headers": {"User-Agent": "Unfurlit test", "Referer": "https://common/"},
                   "requested_formats": [
                     {
                       "format_id": "137",
@@ -88,7 +88,7 @@ class YtDlpJsonParserTest {
         val video = result.media.single() as ExtractedMedia.Video
         assertEquals("137", video.videoSource.formatId)
         assertEquals("https://video/", video.videoSource.headers["Referer"])
-        assertEquals("Peek test", video.videoSource.headers["User-Agent"])
+        assertEquals("Unfurlit test", video.videoSource.headers["User-Agent"])
         assertEquals("140", video.audioSource?.formatId)
         assertEquals("audio/mp4", video.audioSource?.mediaMimeType)
     }
@@ -343,7 +343,7 @@ class YtDlpJsonParserTest {
                 {
                   "extractor_key": "ExampleGallery",
                   "title": "Three items",
-                  "http_headers": {"User-Agent": "Peek test"},
+                  "http_headers": {"User-Agent": "Unfurlit test"},
                   "entries": [
                     {
                       "url": "https://cdn.example.com/one.jpg",
@@ -370,7 +370,7 @@ class YtDlpJsonParserTest {
 
         assertEquals(3, result.media.size)
         val image = result.media[0] as ExtractedMedia.Image
-        assertEquals("Peek test", image.source.headers["User-Agent"])
+        assertEquals("Unfurlit test", image.source.headers["User-Agent"])
         assertEquals("https://gallery.example.com/", image.source.headers["Referer"])
         assertTrue(result.media[1] is ExtractedMedia.Video)
         assertTrue(result.media[2] is ExtractedMedia.Audio)

@@ -8,9 +8,9 @@ import androidx.compose.ui.test.performClick
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.peek.app.ui.theme.PeekTheme
+import org.peek.app.ui.theme.UnfurlitTheme
 
-class PeekTopAppBarTest {
+class UnfurlitTopAppBarTest {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -18,8 +18,8 @@ class PeekTopAppBarTest {
     fun showsCompactBrandingAndAnAccessibleHistoryAction() {
         var historyRequested = false
         composeRule.setContent {
-            PeekTheme {
-                PeekTopAppBar(onShowHistory = { historyRequested = true })
+            UnfurlitTheme {
+                UnfurlitTopAppBar(onShowHistory = { historyRequested = true })
             }
         }
 

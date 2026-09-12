@@ -105,8 +105,8 @@ jobs:
           source_file="$PWD/build/yt-dlp-source/yt-dlp"
           source_sha="$(sha256sum "$source_file" | awk '{ print $1 }')"
           ./gradlew --no-daemon assembleDebug assembleRelease \
-            -Ppeek.ytdlp.file="$source_file" \
-            -Ppeek.ytdlp.sha256="$source_sha"
+            -Punfurlit.ytdlp.file="$source_file" \
+            -Punfurlit.ytdlp.sha256="$source_sha"
           embedded_source_sha="$(unzip -p app/build/outputs/apk/debug/app-debug.apk res/raw/ytdlp | sha256sum | awk '{ print $1 }')"
           test "$embedded_source_sha" = "$source_sha"
           git diff --check
@@ -124,7 +124,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C "$branch"
-          git add app/build.gradle.kts gradle/libs.versions.toml README.md third_party/yt-dlp
+          git add app/build.gradle.kts gradle/libs.versions.toml README.md third_party/yt-dlp fastlane/metadata/android/en-US/changelogs
           git commit -m "chore: update yt-dlp to $VERSION"
           git push --force origin "HEAD:refs/heads/$branch"
 

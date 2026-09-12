@@ -35,7 +35,7 @@ class YtDlpMediaExtractor(
 
         return try {
             val extractionUrl = urlPreflight.resolve(secureInputUrl)
-            val processId = "peek-${UUID.randomUUID()}"
+            val processId = "unfurlit-${UUID.randomUUID()}"
             val request = YoutubeDLRequest(extractionUrl).apply {
                 addOption("--ignore-config")
                 addOption("--skip-download")
@@ -157,7 +157,7 @@ class YtDlpMediaExtractor(
         const val EXTRACTION_TIMEOUT_MILLIS = 120_000L
         const val MAX_MEDIA_ENTRIES = 50
         val executor = Executors.newCachedThreadPool { runnable ->
-            Thread(runnable, "peek-ytdlp").apply { isDaemon = true }
+            Thread(runnable, "unfurlit-ytdlp").apply { isDaemon = true }
         }
         val initializationLock = Any()
 

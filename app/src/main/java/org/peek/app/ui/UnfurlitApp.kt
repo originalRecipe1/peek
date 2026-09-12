@@ -7,60 +7,60 @@ import org.peek.app.ui.components.HistoryPager
 import org.peek.app.ui.home.HomeScreen
 import org.peek.app.ui.history.HistoryRoute
 import org.peek.app.ui.history.HistoryViewModel
-import org.peek.app.ui.theme.PeekTheme
+import org.peek.app.ui.theme.UnfurlitTheme
 import org.peek.app.ui.viewer.ViewerRoute
 import org.peek.app.ui.viewer.ViewerViewModel
 
 @Composable
-fun PeekApp(
-    peekViewModel: PeekViewModel,
+fun UnfurlitApp(
+    unfurlitViewModel: UnfurlitViewModel,
     viewerViewModel: ViewerViewModel,
     historyViewModel: HistoryViewModel,
 ) {
-    val destination by peekViewModel.destination.collectAsStateWithLifecycle()
-    val underlyingDestination = if (destination == PeekDestination.History) {
-        peekViewModel.historyReturnDestination
+    val destination by unfurlitViewModel.destination.collectAsStateWithLifecycle()
+    val underlyingDestination = if (destination == UnfurlitDestination.History) {
+        unfurlitViewModel.historyReturnDestination
     } else {
         destination
     }
-    PeekTheme {
+    UnfurlitTheme {
         HistoryPager(
-            historyVisible = destination == PeekDestination.History,
-            allowOpenSwipe = underlyingDestination == PeekDestination.Home,
+            historyVisible = destination == UnfurlitDestination.History,
+            allowOpenSwipe = underlyingDestination == UnfurlitDestination.Home,
             onHistoryVisibilityChange = { visible ->
-                if (visible && destination != PeekDestination.History) peekViewModel.showHistory()
-                if (!visible && destination == PeekDestination.History) peekViewModel.leaveHistory()
+                if (visible && destination != UnfurlitDestination.History) unfurlitViewModel.showHistory()
+                if (!visible && destination == UnfurlitDestination.History) unfurlitViewModel.leaveHistory()
             },
             history = {
                 HistoryRoute(
                     viewModel = historyViewModel,
-                    onBack = peekViewModel::leaveHistory,
+                    onBack = unfurlitViewModel::leaveHistory,
                     onOpen = { entry ->
                         viewerViewModel.open(entry.sourceUrl)
-                        peekViewModel.showViewer()
+                        unfurlitViewModel.showViewer()
                     },
                 )
             },
         ) { visible ->
             when (underlyingDestination) {
-                PeekDestination.Home -> HomeScreen(
+                UnfurlitDestination.Home -> HomeScreen(
                     onOpen = { url ->
                         viewerViewModel.open(url)
-                        peekViewModel.showViewer()
+                        unfurlitViewModel.showViewer()
                     },
-                    onShowHistory = peekViewModel::showHistory,
+                    onShowHistory = unfurlitViewModel::showHistory,
                 )
 
-                PeekDestination.Viewer -> if (visible) ViewerRoute(
+                UnfurlitDestination.Viewer -> if (visible) ViewerRoute(
                     viewModel = viewerViewModel,
                     onBack = {
                         viewerViewModel.cancel()
-                        peekViewModel.showHome()
+                        unfurlitViewModel.showHome()
                     },
-                    onShowHistory = peekViewModel::showHistory,
+                    onShowHistory = unfurlitViewModel::showHistory,
                 )
 
-                PeekDestination.History -> Unit
+                UnfurlitDestination.History -> Unit
             }
         }
     }

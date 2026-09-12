@@ -94,17 +94,20 @@ abstract class PreparePinnedYtDlp : DefaultTask() {
 
 val ytDlpEngineVersion = libs.versions.ytDlpEngine.get()
 val ytDlpReleaseSha256 = "1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6"
-val localYtDlpPath = providers.gradleProperty("peek.ytdlp.file").orNull
+// Retain old property aliases for existing local/F-Droid build setups.
+val localYtDlpPath = providers.gradleProperty("unfurlit.ytdlp.file")
+    .orElse(providers.gradleProperty("peek.ytdlp.file")).orNull
 val ytDlpEngineSha256 = if (localYtDlpPath == null) {
     ytDlpReleaseSha256
 } else {
-    providers.gradleProperty("peek.ytdlp.sha256").orNull
-        ?: error("peek.ytdlp.sha256 is required when peek.ytdlp.file is set")
+    providers.gradleProperty("unfurlit.ytdlp.sha256")
+        .orElse(providers.gradleProperty("peek.ytdlp.sha256")).orNull
+        ?: error("unfurlit.ytdlp.sha256 is required when unfurlit.ytdlp.file is set")
 }
 require(ytDlpEngineSha256.matches(Regex("[0-9a-f]{64}"))) {
     "The selected yt-dlp SHA-256 must be 64 lowercase hexadecimal characters"
 }
-val generatedYtDlpResources = layout.buildDirectory.dir("generated/peekYtDlp/res")
+val generatedYtDlpResources = layout.buildDirectory.dir("generated/unfurlitYtDlp/res")
 val bundledYtDlp = generatedYtDlpResources.map { it.file("raw/ytdlp") }
 
 val preparePinnedYtDlp by tasks.registering(PreparePinnedYtDlp::class) {
@@ -124,8 +127,8 @@ android {
         applicationId = "org.peek.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.1.0-experiment.6"
+        versionCode = 7
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(

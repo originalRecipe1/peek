@@ -35,7 +35,7 @@ extractor build properties, signing identity, and GitHub repository address
 remain stable. Existing media features and navigation controls are retained. Home also supports
 animated Home/History paging and predictive Back. See
 [`history-navigation.md`](history-navigation.md) for the interaction design. Version
-code 6 makes the rebrand an upgrade to the existing v5 release.
+code 7 makes the rebrand an upgrade to the existing v5 release.
 
 ## History presentation
 
@@ -52,6 +52,23 @@ Browsing History loads local bytes. Removing a visit also removes its thumbnail;
 a pending download cannot recreate deleted entries. Existing visits retain their
 fallback icons unless the media is opened again as a new visit.
 
+## Remaining old-name references
+
+Visible app and store branding, application/UI/theme class names, request
+identification, build resource names, and current release artifacts use Unfurlit.
+The following references intentionally retain the old spelling:
+
+- `org.peek.app`: installed app ID, source namespace, and F-Droid metadata filename.
+- `peek-history.db`: existing private database, preserving visits across upgrades.
+- `peek.ytdlp.*`: aliases accepted for older local build commands; current commands
+  use `unfurlit.ytdlp.*`.
+- `github.com/originalRecipe1/peek`: the actual repository URL; the repository has
+  not been renamed. The existing GitLab submission branch also retains its app ID.
+- Historical release notes, compatibility explanations, and old test observations.
+
+The existing GitLab MR title still needs the user's manual change to
+**New app: Unfurlit**, alongside the 1.0.0 recipe after the signed release exists.
+
 ## Name research
 
 On September 12, 2026, exact-name general web searches and searches scoped to
@@ -65,7 +82,7 @@ exploration board, not a specification of app behavior or a release screenshot.
 
 ## Validation on September 12, 2026
 
-- 44 unit tests and 17 UI instrumentation tests passed; UI tests ran on an
+- 44 Android unit tests, 5 release-updater tests, and 17 UI instrumentation tests passed; UI tests ran on an
   Android 16 / API 36 emulator. They cover full navigation, short/diagonal
   swipes, bidirectional paging, movement before release, retained typed input,
   button navigation, predictive Back cancellation/completion, and both edges.
@@ -74,7 +91,7 @@ exploration board, not a specification of app behavior or a release screenshot.
 - Debug APK, test APK, Android lint, and the offline source-extractor release
   build passed. Lint reports dependency-update notices; the monochrome icon
   warning has been resolved.
-- The release APK reports `Unfurlit`, version code 6, application ID
+- The release APK reports `Unfurlit`, version code 7, application ID
   `org.peek.app`. Its embedded extractor matches the locally source-built hash.
 - Light and dark screens were inspected, and changing the emulator's
   personalized system palette changed the app's accent colors.
@@ -87,5 +104,5 @@ exploration board, not a specification of app behavior or a release screenshot.
   using official F-Droid category/anti-feature definitions. Full F-Droid source
   scanning and signed-binary reproducibility verification await the new release.
 
-The rebrand is prepared for review. No v6 release has been published and the
+The rebrand is prepared for review. No 1.0.0 release has been published and the
 live F-Droid submission still references v5.

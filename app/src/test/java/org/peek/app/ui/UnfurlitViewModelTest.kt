@@ -3,26 +3,26 @@ package org.peek.app.ui
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class PeekViewModelTest {
+class UnfurlitViewModelTest {
     @Test
     fun repeatedHistoryNotificationsPreserveTheViewerReturnDestination() {
-        val model = PeekViewModel()
+        val model = UnfurlitViewModel()
         model.showViewer()
         model.showHistory()
         model.showHistory()
         model.leaveHistory()
-        assertEquals(PeekDestination.Viewer, model.destination.value)
+        assertEquals(UnfurlitDestination.Viewer, model.destination.value)
     }
 
     @Test
     fun historyOpenedFromHomeReturnsHomeAfterAnEarlierViewerVisit() {
-        val model = PeekViewModel()
+        val model = UnfurlitViewModel()
         model.showViewer()
         model.showHistory()
         model.leaveHistory()
         model.showHome()
         model.showHistory()
         model.leaveHistory()
-        assertEquals(PeekDestination.Home, model.destination.value)
+        assertEquals(UnfurlitDestination.Home, model.destination.value)
     }
 }

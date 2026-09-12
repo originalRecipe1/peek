@@ -7,7 +7,7 @@ import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import org.peek.app.data.network.SafeHttpClient
 
-class PeekApplication : Application(), SingletonImageLoader.Factory {
+class UnfurlitApplication : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader =
         ImageLoader.Builder(context)
             .components {

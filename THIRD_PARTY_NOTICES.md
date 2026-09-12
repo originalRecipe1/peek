@@ -42,7 +42,7 @@ upstream projects and their source distributions:
 
 - <https://github.com/JunkFood02/youtubedl-android>
 - <https://github.com/yt-dlp/yt-dlp>
-- <https://github.com/FFmpeg/FFmpeg> (not included by Peek's current dependency set)
+- <https://github.com/FFmpeg/FFmpeg> (not included by Unfurlit's current dependency set)
 - <https://www.python.org/downloads/source/>
 - <https://bellard.org/quickjs/>
 - <https://github.com/Legrandin/pycryptodome>

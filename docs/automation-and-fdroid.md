@@ -4,6 +4,27 @@ Unfurlit separates extractor updates from runtime behavior. The app never downlo
 new executable code. Instead, GitHub Actions checks for a new stable yt-dlp
 release every Monday at 04:23 UTC.
 
+## Version numbering
+
+The first public Unfurlit release is **1.0.0**, Android `versionCode` **7**.
+The earlier `0.1.0-experiment.N` names are retired. Build 6 was an unreleased
+preview; build 7 upgrades that preview as well as the published build 5.
+
+Use three-part release names:
+
+- Patch: fixes and extractor updates (`1.0.0` → `1.0.1`).
+- Minor: new features (`1.0.1` → `1.1.0`).
+- Major: a major product or compatibility release (`1.1.0` → `2.0.0`).
+
+Increment `versionCode` independently for every release; never reset it when
+changing the major or minor version. Git tags use `v1.0.0`, APK assets use
+`Unfurlit-1.0.0.apk`, and store release notes use the build code (`7.txt`).
+Local side-by-side builds append `-preview`; this is not part of the release tag.
+
+The extractor updater increments only the patch and build code and creates
+release notes for that build. Its tests run in Android CI. Manually prepared
+app releases also update the F-Droid submission candidate to the new version.
+
 ## Unfurlit rebrand submission
 
 The existing [F-Droid merge request !47809](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/47809)
@@ -11,7 +32,7 @@ is open on `originalRecipe1/fdroiddata:org.peek.app`. Its current recipe and
 successful pipeline still reference the Peek v5 release documented below.
 
 The prepared replacement is [`fdroid/org.peek.app.yml`](fdroid/org.peek.app.yml).
-It targets Unfurlit `0.1.0-experiment.6`, version code 6, and the new
+It targets Unfurlit `1.0.0`, version code 7, and the new
 `Unfurlit-%v.apk` release filename. The application ID, signing certificate,
 repository URLs, extractor version, and source-build properties are retained.
 This file is a submission candidate, not evidence of publication: its new tag
@@ -20,12 +41,12 @@ and signed binary must exist before it is applied to the live merge request.
 After the reviewed rebrand reaches `main`:
 
 1. Run the **Publish release tag** workflow and verify the signed
-   `Unfurlit-0.1.0-experiment.6.apk` asset on `v0.1.0-experiment.6`.
+   `Unfurlit-1.0.0.apk` asset on `v1.0.0`.
 2. Copy the candidate into the existing fork's `metadata/org.peek.app.yml` on
    branch `org.peek.app`. Resolve the release tag to its full commit hash for
    the final recipe, as in the existing submission.
 3. Run F-Droid metadata lint, source scanning, and the reproducible build check
-   against the signed release. The previous v5 results do not validate v6.
+   against the signed release. The previous v5 results do not validate 1.0.0.
 4. Push that branch and rename the existing MR to **New app: Unfurlit**. Keep
    its checklist accurate for the new release. There is no need for a second MR.
 
@@ -47,7 +68,7 @@ The recipe below is retained as the historical, verified **Peek v5** baseline.
    releases, and version downgrades.
 4. Updates the pinned engine version and checksum, advances the yt-dlp source
    submodule to the same release, and increments Unfurlit's literal `versionCode`
-   and `versionName`.
+   and the patch component of `versionName`.
 5. Runs unit tests, Android lint, and APK builds, then verifies both the official
    release asset and the locally source-built yt-dlp file embedded in debug APKs.
 6. Opens a pull request for review. It never merges the update itself.

@@ -79,8 +79,8 @@ git submodule update --init
 source_file="$PWD/build/yt-dlp-source/yt-dlp"
 source_sha="$(sha256sum "$source_file" | awk '{print $1}')"
 ./gradlew --offline --no-daemon assembleRelease \
-  -Ppeek.ytdlp.file="$source_file" \
-  -Ppeek.ytdlp.sha256="$source_sha"
+  -Punfurlit.ytdlp.file="$source_file" \
+  -Punfurlit.ytdlp.sha256="$source_sha"
 ```
 
 This path performs no extractor download during Gradle execution. Gradle verifies

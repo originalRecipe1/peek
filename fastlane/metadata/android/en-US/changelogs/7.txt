@@ -1,4 +1,4 @@
-Peek is now Unfurlit, with a folded-window icon and refreshed home screen.
+Unfurlit 1.0.0 is here, with a folded-window icon and refreshed home screen.
 Personalized Material colors, media viewing features, and existing viewing history are preserved.
 Swipe left to open History and right to return, with animated cards and Android predictive Back.
 

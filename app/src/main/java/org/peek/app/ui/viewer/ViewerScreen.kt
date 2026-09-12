@@ -48,7 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import org.peek.app.BuildConfig
 import org.peek.app.domain.model.userMessage
-import org.peek.app.ui.components.PeekTopAppBar
+import org.peek.app.ui.components.UnfurlitTopAppBar
 
 @Composable
 fun ViewerRoute(
@@ -96,7 +96,7 @@ private fun ViewerScreen(
     Scaffold(
         topBar = {
             if (!fullscreen) {
-                PeekTopAppBar(onShowHistory = onShowHistory)
+                UnfurlitTopAppBar(onShowHistory = onShowHistory)
             }
         },
     ) { contentPadding ->

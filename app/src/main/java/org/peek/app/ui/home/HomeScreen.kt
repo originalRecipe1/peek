@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.peek.app.R
-import org.peek.app.ui.components.PeekTopAppBar
+import org.peek.app.ui.components.UnfurlitTopAppBar
 import org.peek.app.util.UrlTextParser
 
 @Composable
@@ -66,7 +66,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            PeekTopAppBar(onShowHistory = onShowHistory)
+            UnfurlitTopAppBar(onShowHistory = onShowHistory)
         },
     ) { contentPadding ->
         Column(

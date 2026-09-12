@@ -8,13 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import org.peek.app.intents.IntentUrlResolver
-import org.peek.app.ui.PeekApp
-import org.peek.app.ui.PeekViewModel
+import org.peek.app.ui.UnfurlitApp
+import org.peek.app.ui.UnfurlitViewModel
 import org.peek.app.ui.history.HistoryViewModel
 import org.peek.app.ui.viewer.ViewerViewModel
 
 class MainActivity : ComponentActivity() {
-    private val peekViewModel: PeekViewModel by viewModels()
+    private val unfurlitViewModel: UnfurlitViewModel by viewModels()
     private val viewerViewModel: ViewerViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
 
@@ -23,8 +23,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         handleIntent(intent)
         setContent {
-            PeekApp(
-                peekViewModel = peekViewModel,
+            UnfurlitApp(
+                unfurlitViewModel = unfurlitViewModel,
                 viewerViewModel = viewerViewModel,
                 historyViewModel = historyViewModel,
             )
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
     private fun handleIntent(intent: Intent?) {
         IntentUrlResolver.resolve(intent)?.let { url ->
             viewerViewModel.open(url)
-            peekViewModel.showViewer()
+            unfurlitViewModel.showViewer()
         }
     }
 }
