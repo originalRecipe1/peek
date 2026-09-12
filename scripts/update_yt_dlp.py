@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "gradle" / "libs.versions.toml"
 BUILD_FILE = ROOT / "app" / "build.gradle.kts"
-README_FILE = ROOT / "README.md"
+BUILD_GUIDE_FILE = ROOT / "docs" / "development.md"
 YT_DLP_VERSION = re.compile(r"^20\d{2}\.\d{2}\.\d{2}(?:\.\d+)?$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -75,9 +75,9 @@ def main() -> None:
     next_code = current_code + 1
     next_name = f"{major}.{minor}.{patch + 1}"
 
-    readme = README_FILE.read_text(encoding="utf-8")
-    if current_version not in readme:
-        raise RuntimeError("README does not mention the currently pinned yt-dlp version")
+    build_guide = BUILD_GUIDE_FILE.read_text(encoding="utf-8")
+    if current_version not in build_guide:
+        raise RuntimeError("Development guide does not mention the currently pinned yt-dlp version")
     changelog = ROOT / "fastlane/metadata/android/en-US/changelogs" / f"{next_code}.txt"
     if changelog.exists():
         raise RuntimeError(f"Release notes already exist for build {next_code}")
@@ -99,7 +99,7 @@ def main() -> None:
         rf'\g<1>versionName = "{next_name}"',
     )
 
-    README_FILE.write_text(readme.replace(current_version, new_version), encoding="utf-8")
+    BUILD_GUIDE_FILE.write_text(build_guide.replace(current_version, new_version), encoding="utf-8")
 
     changelog.parent.mkdir(parents=True, exist_ok=True)
     changelog.write_text(f"Update the media extractor to yt-dlp {new_version}.\n", encoding="utf-8")
