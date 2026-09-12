@@ -35,10 +35,10 @@ class HistoryScreenTest {
         composeRule.setContent {
             MaterialTheme { HistoryScreen(HistoryState.Ready(listOf(entry)), {}, {}, {}, { cleared++ }) }
         }
-        composeRule.onNodeWithContentDescription("Clear history").performClick()
+        composeRule.onNodeWithText("Clear all").performClick()
         composeRule.onNodeWithText("Cancel").performClick()
         composeRule.runOnIdle { assertEquals(0, cleared) }
-        composeRule.onNodeWithContentDescription("Clear history").performClick()
+        composeRule.onNodeWithText("Clear all").performClick()
         composeRule.onNodeWithText("Clear history").performClick()
         composeRule.runOnIdle { assertEquals(1, cleared) }
     }
@@ -50,7 +50,7 @@ class HistoryScreenTest {
             MaterialTheme { HistoryScreen(HistoryState.Ready(emptyList()), { wentBack = true }, {}, {}, {}) }
         }
         composeRule.onNodeWithText("A little rewind").assertIsDisplayed()
-        composeRule.onNodeWithContentDescription("Clear history").assertDoesNotExist()
+        composeRule.onNodeWithText("Clear all").assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Back").performClick()
         composeRule.runOnIdle { assertEquals(true, wentBack) }
     }

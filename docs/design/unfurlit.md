@@ -40,8 +40,8 @@ code 6 makes the rebrand an upgrade to the existing v5 release.
 ## History presentation
 
 History uses date sections and rounded cards with 80dp previews, a platform label,
-title, creator, and compact media/time details. Back and clear use labelled icon
-buttons; each card has a direct remove icon. Missing artwork uses a
+title, creator, and compact media/time details. Back uses an arrow and each card has a direct remove icon. The toolbar
+labels its bulk action “Clear all” and requires confirmation. Missing artwork uses a
 Material-colored media icon. Card removal animates the remaining list.
 
 Database version 2 adds a nullable thumbnail blob without modifying existing

@@ -75,8 +75,8 @@ internal fun HistoryScreen(
                 },
                 actions = {
                     if (entries.isNotEmpty()) {
-                        IconButton(onClick = { showClearConfirmation = true }) {
-                            Icon(painterResource(R.drawable.ic_delete), "Clear history")
+                        TextButton(onClick = { showClearConfirmation = true }) {
+                            Text("Clear all")
                         }
                     }
                 },
