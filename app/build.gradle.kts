@@ -120,11 +120,11 @@ val preparePinnedYtDlp by tasks.registering(PreparePinnedYtDlp::class) {
 }
 
 android {
-    namespace = "org.peek.app"
+    namespace = "io.github.originalrecipe1.unfurlit"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "org.peek.app"
+        applicationId = "io.github.originalrecipe1.unfurlit"
         minSdk = 24
         targetSdk = 36
         versionCode = 7

@@ -1,7 +1,8 @@
 # Unfurlit
 
-Unfurlit was previously named Peek. The Android application ID remains
-`org.peek.app` so existing installations and viewing history can be upgraded.
+Unfurlit was previously named Peek. Its new Android application ID is
+`io.github.originalrecipe1.unfurlit`. This installs separately from the old
+`org.peek.app` app; existing Peek installations and history are not migrated.
 The interface follows Android's personalized Material colors on Android 12+
 and the system light/dark appearance. The folded-window icon also has an
 Android 13+ monochrome variant for themed launchers.

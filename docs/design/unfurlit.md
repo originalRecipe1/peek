@@ -30,12 +30,16 @@ consistent with that source when changing the silhouette.
 
 ## Compatibility
 
-The Android application ID, internal package names, private history storage,
-extractor build properties, signing identity, and GitHub repository address
-remain stable. Existing media features and navigation controls are retained. Home also supports
-animated Home/History paging and predictive Back. See
-[`history-navigation.md`](history-navigation.md) for the interaction design. Version
-code 7 makes the rebrand an upgrade to the existing v5 release.
+Unfurlit 1.0.0 uses `io.github.originalrecipe1.unfurlit` for both its application
+ID and source namespace. This is a new installation, not an upgrade to
+`org.peek.app`. Old installations and their history remain intact; there is no
+history migration. Its private database is named `unfurlit-history.db`.
+
+The signing identity, extractor build compatibility aliases, and GitHub
+repository address remain stable. Existing media features are retained. Home
+supports animated Home/History paging and predictive Back; see
+[`history-navigation.md`](history-navigation.md). The release remains version
+1.0.0, build 7, since it has not been published.
 
 ## History presentation
 
@@ -58,8 +62,6 @@ Visible app and store branding, application/UI/theme class names, request
 identification, build resource names, and current release artifacts use Unfurlit.
 The following references intentionally retain the old spelling:
 
-- `org.peek.app`: installed app ID, source namespace, and F-Droid metadata filename.
-- `peek-history.db`: existing private database, preserving visits across upgrades.
 - `peek.ytdlp.*`: aliases accepted for older local build commands; current commands
   use `unfurlit.ytdlp.*`.
 - `github.com/originalRecipe1/peek`: the actual repository URL; the repository has
@@ -67,7 +69,8 @@ The following references intentionally retain the old spelling:
 - Historical release notes, compatibility explanations, and old test observations.
 
 The existing GitLab MR title still needs the user's manual change to
-**New app: Unfurlit**, alongside the 1.0.0 recipe after the signed release exists.
+**New app: Unfurlit**, alongside replacing the old metadata filename with
+`io.github.originalrecipe1.unfurlit.yml` after the signed 1.0.0 release exists.
 
 ## Name research
 
@@ -92,7 +95,7 @@ exploration board, not a specification of app behavior or a release screenshot.
   build passed. Lint reports dependency-update notices; the monochrome icon
   warning has been resolved.
 - The release APK reports `Unfurlit`, version code 7, application ID
-  `org.peek.app`. Its embedded extractor matches the locally source-built hash.
+  `io.github.originalrecipe1.unfurlit`. Its embedded extractor matches the locally source-built hash.
 - Light and dark screens were inspected, and changing the emulator's
   personalized system palette changed the app's accent colors.
 - A live YouTube Big Buck Bunny link played and created a history entry with

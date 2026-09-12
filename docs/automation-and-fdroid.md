@@ -8,7 +8,8 @@ release every Monday at 04:23 UTC.
 
 The first public Unfurlit release is **1.0.0**, Android `versionCode` **7**.
 The earlier `0.1.0-experiment.N` names are retired. Build 6 was an unreleased
-preview; build 7 upgrades that preview as well as the published build 5.
+preview under the old application ID. The new ID installs separately from
+both that preview and published build 5; existing history is not transferred.
 
 Use three-part release names:
 
@@ -31,10 +32,11 @@ The existing [F-Droid merge request !47809](https://gitlab.com/fdroid/fdroiddata
 is open on `originalRecipe1/fdroiddata:org.peek.app`. Its current recipe and
 successful pipeline still reference the Peek v5 release documented below.
 
-The prepared replacement is [`fdroid/org.peek.app.yml`](fdroid/org.peek.app.yml).
+The prepared replacement is [`fdroid/io.github.originalrecipe1.unfurlit.yml`](fdroid/io.github.originalrecipe1.unfurlit.yml).
 It targets Unfurlit `1.0.0`, version code 7, and the new
-`Unfurlit-%v.apk` release filename. The application ID, signing certificate,
-repository URLs, extractor version, and source-build properties are retained.
+`Unfurlit-%v.apk` release filename. Its new application ID is
+`io.github.originalrecipe1.unfurlit`; the signing certificate, repository URLs,
+extractor version, and source-build properties are retained.
 This file is a submission candidate, not evidence of publication: its new tag
 and signed binary must exist before it is applied to the live merge request.
 
@@ -42,13 +44,16 @@ After the reviewed rebrand reaches `main`:
 
 1. Run the **Publish release tag** workflow and verify the signed
    `Unfurlit-1.0.0.apk` asset on `v1.0.0`.
-2. Copy the candidate into the existing fork's `metadata/org.peek.app.yml` on
-   branch `org.peek.app`. Resolve the release tag to its full commit hash for
-   the final recipe, as in the existing submission.
+2. On the existing fork branch `org.peek.app`, remove the old
+   `metadata/org.peek.app.yml` and add the candidate as
+   `metadata/io.github.originalrecipe1.unfurlit.yml`. Keep the same MR and branch;
+   the metadata filename must match the new application ID. Resolve `v1.0.0`
+   to its full commit hash for the final recipe.
 3. Run F-Droid metadata lint, source scanning, and the reproducible build check
    against the signed release. The previous v5 results do not validate 1.0.0.
 4. Push that branch and rename the existing MR to **New app: Unfurlit**. Keep
-   its checklist accurate for the new release. There is no need for a second MR.
+   its checklist accurate for the new release and explain that the package
+   changed before initial F-Droid publication. There is no need for a second MR.
 
 Store title, description, icon, and screenshots are imported from the release's
 `fastlane/metadata/android/en-US` directory. Changing only `AutoName` would not
