@@ -41,7 +41,7 @@ code 6 makes the rebrand an upgrade to the existing v5 release.
 
 History uses date sections and rounded cards with 80dp previews, a platform label,
 title, creator, and compact media/time details. Back and clear use labelled icon
-buttons; each card has an overflow menu for removal. Missing artwork uses a
+buttons; each card has a direct remove icon. Missing artwork uses a
 Material-colored media icon. Card removal animates the remaining list.
 
 Database version 2 adds a nullable thumbnail blob without modifying existing
@@ -69,7 +69,7 @@ exploration board, not a specification of app behavior or a release screenshot.
   Android 16 / API 36 emulator. They cover full navigation, short/diagonal
   swipes, bidirectional paging, movement before release, retained typed input,
   button navigation, predictive Back cancellation/completion, and both edges.
-  History tests cover row/menu actions, clear confirmation, empty state,
+  History tests cover row/remove actions, clear confirmation, empty state,
   database migration, thumbnail persistence, and deletion during preview loading.
 - Debug APK, test APK, Android lint, and the offline source-extractor release
   build passed. Lint reports dependency-update notices; the monochrome icon

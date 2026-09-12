@@ -98,17 +98,6 @@ internal fun HistoryScreen(
                         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        item(key = "intro") {
-                            Column(Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)) {
-                                Text("Recently opened", style = MaterialTheme.typography.headlineSmall)
-                                Text(
-                                    "${entries.size} ${if (entries.size == 1) "visit" else "visits"} · Your media, revisited",
-                                    modifier = Modifier.padding(top = 4.dp),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
                         groups.forEach { (day, dayEntries) ->
                             item(key = "day-$day") {
                                 val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
@@ -166,7 +155,6 @@ private fun HistoryRow(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var showMenu by remember { mutableStateOf(false) }
     val title = entry.title ?: entry.sourceHost() ?: "Untitled media"
     val time = DateUtils.formatDateTime(context, entry.viewedAtEpochMillis, DateUtils.FORMAT_SHOW_TIME)
     Card(
@@ -195,17 +183,12 @@ private fun HistoryRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Box {
-                IconButton(onClick = { showMenu = true }) {
-                    Icon(painterResource(R.drawable.ic_more_vert), "Options for $title", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                    DropdownMenuItem(
-                        text = { Text("Remove from history") },
-                        leadingIcon = { Icon(painterResource(R.drawable.ic_delete), null) },
-                        onClick = { showMenu = false; onRemove() },
-                    )
-                }
+            IconButton(onClick = onRemove) {
+                Icon(
+                    painterResource(R.drawable.ic_delete),
+                    "Remove $title from history",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

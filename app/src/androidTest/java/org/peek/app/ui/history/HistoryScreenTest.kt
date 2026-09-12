@@ -14,7 +14,7 @@ class HistoryScreenTest {
     private val entry = HistoryEntry(7, "https://example.com/watch", "Example", "An afternoon outside", "A creator", HistoryMediaKind.Video, 1, 62, System.currentTimeMillis())
 
     @Test
-    fun rowOpensMediaAndOverflowRemovesOnlyTheSelectedVisit() {
+    fun rowOpensMediaAndRemoveIconDeletesOnlyTheSelectedVisit() {
         var opened: Long? = null
         var removed: Long? = null
         composeRule.setContent {
@@ -23,9 +23,9 @@ class HistoryScreenTest {
         composeRule.onNodeWithText("Today").assertIsDisplayed()
         composeRule.onNodeWithText(entry.title!!).performClick()
         composeRule.runOnIdle { assertEquals(7L, opened) }
-        composeRule.onNodeWithContentDescription("Options for ${entry.title}").performClick()
-        composeRule.runOnIdle { assertEquals(null, removed) }
-        composeRule.onNodeWithText("Remove from history").performClick()
+        composeRule.runOnIdle { opened = null }
+        composeRule.onNodeWithContentDescription("Remove ${entry.title} from history").performClick()
+        composeRule.runOnIdle { assertEquals(null, opened) }
         composeRule.runOnIdle { assertEquals(7L, removed) }
     }
 

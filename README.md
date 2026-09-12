@@ -134,7 +134,7 @@ with a card transition. Android's edge Back gesture also previews the return
 and can be cancelled. A link typed on Home is retained while visiting History.
 Opening an entry extracts
 the original page again so stale stream URLs are never reused. Individual events can
-be removed through their overflow menu, and the toolbar trash icon clears the
+be removed with their trash icon, and the toolbar trash icon clears the
 entire history after confirmation. Visits appear in date groups with small
 thumbnails and media-type icons.
 
