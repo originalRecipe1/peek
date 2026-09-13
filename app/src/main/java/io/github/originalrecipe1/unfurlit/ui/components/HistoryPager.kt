@@ -1,6 +1,5 @@
 package io.github.originalrecipe1.unfurlit.ui.components
 
-import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -46,7 +45,6 @@ fun HistoryPager(
     val pager = rememberPagerState(initialPage = if (historyVisible) 0 else 1) { 2 }
     val visibilityChanged by rememberUpdatedState(onHistoryVisibilityChange)
     var predictingBack by remember { mutableStateOf(false) }
-    var backFromLeft by remember { mutableStateOf(false) }
     val rightToLeftLayout = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     LaunchedEffect(historyVisible) {
@@ -68,8 +66,8 @@ fun HistoryPager(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer),
         // Keep Home's typed link and scroll position while looking at History.
         beyondViewportPageCount = 1,
-        // In-app paging puts History to the right, matching its toolbar button. System Back follows its chosen edge.
-        reverseLayout = rightToLeftLayout xor (!predictingBack || backFromLeft),
+        // Keep History to the right of Home, including Back previews from either edge.
+        reverseLayout = !rightToLeftLayout,
         userScrollEnabled = !predictingBack && (allowOpenSwipe || historyVisible),
         flingBehavior = PagerDefaults.flingBehavior(pager, snapPositionalThreshold = 0.12f),
         pageSpacing = 12.dp,
@@ -99,7 +97,6 @@ fun HistoryPager(
         predictingBack = true
         try {
             events.collect { event ->
-                backFromLeft = event.swipeEdge == BackEventCompat.EDGE_LEFT
                 val progress = event.progress.coerceIn(0f, 1f)
                 val nearestPage = progress.roundToInt()
                 pager.scrollToPage(nearestPage, progress - nearestPage)

@@ -120,7 +120,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun predictiveBackPreviewFollowsEitherSystemEdge() {
+    fun predictiveBackPreviewMovesRightFromEitherSystemEdge() {
         composeRule.onNodeWithContentDescription("Open history").performClick()
         val dispatcher = composeRule.activity.onBackPressedDispatcher
         for (edge in listOf(BackEventCompat.EDGE_LEFT, BackEventCompat.EDGE_RIGHT)) {
@@ -134,7 +134,7 @@ class MainActivityTest {
             }
             composeRule.waitForIdle()
             val previewLeft = composeRule.onNodeWithText("History").fetchSemanticsNode().boundsInRoot.left
-            assertTrue(if (edge == BackEventCompat.EDGE_LEFT) previewLeft > originalLeft else previewLeft < originalLeft)
+            assertTrue("History should move right for Back from edge $edge", previewLeft > originalLeft)
             composeRule.runOnUiThread { dispatcher.dispatchOnBackCancelled() }
             composeRule.onNodeWithText("History").assertIsDisplayed()
         }

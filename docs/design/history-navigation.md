@@ -17,8 +17,9 @@ An in-content left swipe opens it; a right swipe returns. Pager position drives 
 and shadow treatment, so the pages move during the drag. The existing History
 and Back buttons animate between the same pages.
 
-From History, predictive Back previews the return destination and follows the
-invoked system edge. Cancellation restores History. Navigation state changes
+From History, predictive Back moves History to the right to reveal Home on the
+left, matching the in-content return swipe regardless of the invoked system
+edge. Cancellation restores History. Navigation state changes
 after a page settles, rather than halfway through a drag or back preview.
 
 Home remains composed to retain typed input and scroll position. The viewer
