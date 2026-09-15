@@ -80,6 +80,65 @@ created no permanent media file.
 
 ## Size observations
 
+### Python runtime trimming — 2026-09-15
+
+The build now removes `usr/lib/quickjs/libquickjs.a` and seven CPython test
+extension modules from the dependency's nested runtime ZIPs. In the ARM64 APK,
+this removes 6,800,030 bytes of expanded runtime files: 41,680,927 bytes becomes
+34,880,897 bytes. The release APK decreased from 20,079,981 to 18,282,669 bytes.
+The app's QuickJS executable, Python interpreter, required modules, and yt-dlp
+engine remain bundled.
+
+All retained runtime file contents, compressed sizes, and Unix modes were
+compared against the original Maven AAR for every bundled ABI. Archive unit
+tests cover retained compressed bytes, permissions, symlinks, timestamps,
+repeatability, and rejection of an unexpected upstream layout. The existing
+installer's bytecode confirms that an archive size change replaces the old
+Python directory, without touching the history database.
+
+Release builds, release unit tests, lint, and the x86_64 CI APK build passed.
+After reconnecting the Pixel 7, a fresh, separately identified release build
+with shrinking and the trimmed ARM64 runtime successfully extracted YouTube
+fixture `aqz-KE-bpKQ`, initialized video and audio decoders, and recorded the
+history event emitted when playback starts. Two targeted instrumented tests
+also passed: starting the pinned engine with `--version` without network
+access, and simulating an old archive-size marker to verify runtime replacement
+removes an obsolete build file, preserves a database entry, and leaves the
+engine runnable. These automated checks used the debug test variant; the live
+playback check used the optimized release. Temporary test packages were removed
+and the user's installed app was left unchanged. Other sites were not retested.
+
+The x86_64 debug variant was also tested on the Android 16 / API 36
+`unfurlit-review` emulator. All 19 instrumented tests passed, including both
+Python runtime checks. A fresh test installation extracted the same YouTube
+fixture, initialized AV1 video and Opus audio decoders, and displayed its visit
+in history, confirming the player entered its playing state. The test APK
+contained only x86_64 native libraries. This complements the optimized ARM64
+release check above; emulator debug tests do not exercise R8. The emulator's
+SwiftShader renderer crashed before app launch on this host; starting with
+`-gpu host -feature -Vulkan -no-snapshot` booted successfully and supported the
+full test run. The temporary app was removed after testing.
+
+### Release optimization — 2026-09-14
+
+With the same ARM64 runtime and pinned yt-dlp engine, enabling R8 and optimized
+resource shrinking reduced the unsigned release APK from 29,972,943 to
+20,079,981 bytes (33.0%). Uncompressed DEX code fell from 30,492,864 to
+3,995,044 bytes. The final APK contains only ARM64 native libraries, and the
+bundled yt-dlp SHA-256 still matches the pinned value. This does not shrink
+the Python runtime unpacked into app-private storage.
+
+A fresh install of a separately identified, debug-key-signed release build on
+the Pixel 7 exposed a reflective ZIP extra-field constructor removed by R8.
+The targeted keep rule in `app/proguard-rules.pro` fixed first-use Python
+initialization. After clearing only the test copy's data, YouTube's
+`aqz-KE-bpKQ` fixture extracted successfully, initialized video and audio
+decoders, and produced the history event emitted when playback starts. The
+temporary test app was removed afterward. All 44 release unit tests and release
+lint passed. Other platforms were not retested for this packaging change.
+
+### Earlier prototype
+
 - Universal two-ABI debug APK: 49,067,428 bytes (46.8 MiB).
 - Universal two-ABI unsigned release APK: 44,245,288 bytes (42.2 MiB).
 - Estimated compressed payload with only arm64-v8a: approximately 28.3 MiB.

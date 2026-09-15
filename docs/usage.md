@@ -2,7 +2,7 @@
 
 ## Installation
 
-Unfurlit runs on Android 7.0 or newer on 64-bit ARM devices and x86_64 emulators.
+Unfurlit runs on Android 7.0 or newer on 64-bit ARM devices. Release APKs include only ARM64 native libraries.
 Install the APK attached to an **Unfurlit** release on
 [GitHub Releases](https://github.com/originalRecipe1/unfurlit/releases). If no
 Unfurlit release is listed yet, see the [build instructions](development.md#build).

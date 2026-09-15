@@ -1,4 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import io.github.originalrecipe1.unfurlit.buildlogic.TrimPythonRuntime
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -20,6 +23,21 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+val trimmedPythonRuntime = Attribute.of("io.github.originalrecipe1.unfurlit.trimmedPythonRuntime", Boolean::class.javaObjectType)
+dependencies {
+    attributesSchema.attribute(trimmedPythonRuntime)
+    artifactTypes.maybeCreate("aar").attributes.attribute(trimmedPythonRuntime, false)
+    registerTransform(TrimPythonRuntime::class) {
+        from.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "aar")
+            .attribute(trimmedPythonRuntime, false)
+        to.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "aar")
+            .attribute(trimmedPythonRuntime, true)
+    }
+}
+configurations.configureEach {
+    if (isCanBeResolved) attributes.attribute(trimmedPythonRuntime, true)
 }
 
 @CacheableTask
@@ -109,6 +127,10 @@ require(ytDlpEngineSha256.matches(Regex("[0-9a-f]{64}"))) {
 }
 val generatedYtDlpResources = layout.buildDirectory.dir("generated/unfurlitYtDlp/res")
 val bundledYtDlp = generatedYtDlpResources.map { it.file("raw/ytdlp") }
+val ciX86_64 = providers.gradleProperty("unfurlit.ci.x86_64")
+    .map { it.toBooleanStrict() }
+    .orElse(false)
+    .get()
 
 val preparePinnedYtDlp by tasks.registering(PreparePinnedYtDlp::class) {
     description = "Fetches and verifies the pinned yt-dlp zipimport executable"
@@ -127,8 +149,8 @@ android {
         applicationId = "io.github.originalrecipe1.unfurlit"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "1.0.0"
+        versionCode = 8
+        versionName = "1.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(
@@ -146,15 +168,20 @@ android {
             "YT_DLP_ENGINE_SHA256",
             "\"$ytDlpEngineSha256\"",
         )
-
-        ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
-        }
     }
 
     buildTypes {
+        debug {
+            ndk {
+                abiFilters += if (ciX86_64) "x86_64" else "arm64-v8a"
+            }
+        }
         release {
-            isMinifyEnabled = false
+            ndk {
+                abiFilters += "arm64-v8a"
+            }
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

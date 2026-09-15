@@ -69,7 +69,7 @@ jobs:
           ./scripts/build_yt_dlp_from_source.sh
           source_file="$PWD/build/yt-dlp-source/yt-dlp"
           source_sha="$(sha256sum "$source_file" | awk '{ print $1 }')"
-          ./gradlew --no-daemon testDebugUnitTest lintDebug assembleRelease \
+          ./gradlew --no-daemon :buildSrc:test testReleaseUnitTest lintRelease assembleRelease \
             -Punfurlit.ytdlp.file="$source_file" \
             -Punfurlit.ytdlp.sha256="$source_sha"
 
@@ -121,8 +121,11 @@ jobs:
 
           checksum_file="$signed_apk.sha256"
           (cd "$signing_dir" && sha256sum "$(basename "$signed_apk")" > "$(basename "$checksum_file")")
+          mapping_file="$signing_dir/Unfurlit-$VERSION_NAME-mapping.txt"
+          cp app/build/outputs/mapping/release/mapping.txt "$mapping_file"
           echo "apk=$signed_apk" >> "$GITHUB_OUTPUT"
           echo "checksum=$checksum_file" >> "$GITHUB_OUTPUT"
+          echo "mapping=$mapping_file" >> "$GITHUB_OUTPUT"
 
       - name: Create the tag and GitHub release
         if: steps.version.outputs.create == 'true'
@@ -130,8 +133,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
           VERSION_NAME: ${{ steps.version.outputs.name }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
           SIGNED_APK: ${{ steps.signing.outputs.apk }}
           SIGNED_CHECKSUM: ${{ steps.signing.outputs.checksum }}
+          R8_MAPPING: ${{ steps.signing.outputs.mapping }}
         shell: bash
         run: |
           set -euo pipefail
@@ -142,7 +147,8 @@ jobs:
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
             --title "Unfurlit $VERSION_NAME" \
-            --generate-notes \
+            --notes-file "fastlane/metadata/android/en-US/changelogs/$VERSION_CODE.txt" \
             "$SIGNED_APK" \
             "$SIGNED_CHECKSUM" \
+            "$R8_MAPPING" \
             "${release_flags[@]}"

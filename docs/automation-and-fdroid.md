@@ -33,15 +33,17 @@ is open on `originalRecipe1/fdroiddata:org.peek.app`. Its current recipe and
 successful pipeline still reference the Peek v5 release documented below.
 
 The prepared replacement is [`fdroid/io.github.originalrecipe1.unfurlit.yml`](fdroid/io.github.originalrecipe1.unfurlit.yml).
-It targets Unfurlit `1.0.0`, version code 7, and the new
+It targets Unfurlit `1.0.1`, version code 8, and the new
 `Unfurlit-%v.apk` release filename. Its new application ID is
 `io.github.originalrecipe1.unfurlit`, and its repository and release URLs point to
 `originalRecipe1/unfurlit`. The signing certificate, extractor version, and
 source-build properties are retained.
 The signed [1.0.0 release](https://github.com/originalRecipe1/unfurlit/releases/tag/v1.0.0)
-is published. The candidate pins its full commit,
+is published. The previous candidate pinned its full commit,
 `80f79dd1328775d57c19c99d6592f54e552e8440`, and passed local validation on
 September 12, 2026; see [the validation record](fdroid/validation-1.0.0.md).
+The updated candidate targets `v1.0.1`; the previous F-Droid validation does not
+cover this release's ARM64-only packaging, R8, or trimmed Python runtime.
 Official F-Droid acceptance and publication are still pending.
 
 Store title, description, icon, and screenshots are imported from the release's
