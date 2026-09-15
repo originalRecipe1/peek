@@ -8,7 +8,7 @@ Requirements:
 
 - JDK 21 for the Gradle runtime (the app still targets Java 17 bytecode)
 - Android SDK 36
-- a 64-bit ARM device or x86_64 emulator running Android 7.0+
+- a 64-bit ARM device running Android 7.0+, or an emulator (see the CI build option below)
 - Git, Python 3, Make, and Zip only when building the extractor from source
 
 The repository pins the Gradle daemon to Java 21 in
@@ -25,8 +25,51 @@ Build and run tests:
 
 With an emulator or device selected through `ANDROID_SERIAL`, run the deterministic
 Compose tests with `./gradlew connectedDebugAndroidTest`. CI runs the same tests
-on an AOSP API 30 Gradle-managed device. Live extraction tests remain manual so
+on an AOSP API 30 Gradle-managed device. Normal debug builds contain only
+`arm64-v8a` native libraries. CI opts into an x86_64 debug APK for its emulator:
+
+```bash
+./gradlew pixel2Api30DebugAndroidTest -Punfurlit.ci.x86_64=true
+```
+
+The same option works with `assembleDebug` or `connectedDebugAndroidTest` for
+local x86_64 emulator testing. Release APKs always contain only `arm64-v8a`,
+even when this option is set. Live extraction tests remain manual so
 platform rate limits and datacenter blocking cannot make pull requests flaky.
+
+On this Fedora host, the API 36 emulator's SwiftShader renderer crashed before
+Android finished booting. A cold boot using host graphics worked:
+
+```bash
+"$ANDROID_HOME/emulator/emulator" @unfurlit-review -no-window -no-audio -no-snapshot -gpu host -feature -Vulkan
+ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Punfurlit.ci.x86_64=true
+```
+
+Use the AVD name and emulator serial available on your machine. This is a local
+workaround; CI retains its existing software renderer configuration.
+
+Release builds use R8 code optimization and resource shrinking, including the
+optimized resource shrinker for AGP 8.13. CI also builds the release APK so
+shrinker failures are caught on pull requests. Validate changes to dependencies
+or keep rules with playback in a signed release build; debug tests do not run
+the optimized code. Keep `app/build/outputs/mapping/release/mapping.txt` with
+each release to decode obfuscated crash traces. The release workflow attaches
+this mapping file alongside the signed APK and checksum.
+
+The cached AAR transform in `buildSrc` trims the bundled Python runtime for all
+builds, including x86_64 CI tests. Its exact removal list contains only the
+static QuickJS build archive and seven CPython test extension modules. Retained
+file contents, compressed payloads, Unix permissions, and symlink targets are
+preserved. Gradle runs in UTC to keep rewritten ZIP headers reproducible. The
+downloaded Maven artifact and its dependency metadata remain unchanged; a
+runtime layout change fails the transform and requires review of the list.
+
+Run `./gradlew :buildSrc:test` for the archive preservation tests. Instrumented
+tests also start the trimmed Python/yt-dlp engine with `--version`, without
+accessing a media site, and verify that replacing an older runtime removes
+obsolete files while preserving a database entry. The upstream runtime installer replaces its Python
+directory when the bundled archive size changes, so existing installations
+reclaim the space on their next extraction without clearing viewing history.
 
 For Android Studio, select the shared **Unfurlit** run configuration, choose one or
 more connected devices from the target-device selector, and press **Run**. The

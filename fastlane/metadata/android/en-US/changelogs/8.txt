@@ -1,0 +1,4 @@
+Smaller app: ARM64-only release, optimized code and resources, and a leaner bundled Python runtime.
+Runtime updates remove obsolete files while preserving your history.
+Fix History's Back animation so it moves consistently from either screen edge.
+The bundled yt-dlp engine remains at 2026.08.19.
